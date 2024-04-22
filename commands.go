@@ -4,12 +4,18 @@ package main
 // Add callnames, []string
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/go-zoox/fetch"
 )
 
+type data interface {
+	String() string
+	GetUrl() string
+	GetId() int
+}
 type cliCommand struct {
 	Name    string
 	Desc    string
@@ -39,6 +45,7 @@ func getConfigs() map[string]*Config {
 }
 
 func getCommands() map[string]cliCommand {
+	currentLocationID := 0
 	configs := getConfigs()
 	return map[string]cliCommand{
 		"help": {
@@ -61,9 +68,14 @@ func getCommands() map[string]cliCommand {
 
 		"map": {
 			Name: "Map",
-			Desc: "Map the next 20 area of pokemon",
+			Desc: "Map of the next 20 area of pokemon",
 			Command: func() error {
-				call(fmt.Sprintf("location/%v", 1))
+				for i := 0; i < 20; i++ {
+					currentLocationID++
+					Location := LocationData{}
+					call(fmt.Sprintf("location/%v", currentLocationID), &Location)
+					fmt.Println(Location.String())
+				}
 				return nil
 			},
 			Config: configs["prevmap"],
@@ -71,13 +83,54 @@ func getCommands() map[string]cliCommand {
 	}
 }
 
-func call(s string) {
-	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/%s/", s)
+func call(str string, dataLocation data) {
+	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/%s/", str)
 	response, err := fetch.Get(endpoint)
 	if err != nil {
 		panic(err)
 	}
+	responsejson, err := response.JSON()
+	if err != nil {
+		panic(err)
+	}
+	json.Unmarshal([]byte(responsejson), &dataLocation)
 
-	fmt.Println(response.JSON())
+}
 
+type LocationData struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Region struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"region"`
+	Names []struct {
+		Name     string `json:"name"`
+		Language struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"language"`
+	} `json:"names"`
+	GameIndices []struct {
+		GameIndex  int `json:"game_index"`
+		Generation struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"generation"`
+	} `json:"game_indices"`
+	Areas []struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"areas"`
+}
+
+func (l LocationData) String() string {
+	return fmt.Sprint(l.ID, " "+l.Name+" ", l.Region.Name+" ")
+}
+
+func (l LocationData) GetUrl() string {
+	return l.Region.URL
+}
+func (l LocationData) GetId() int {
+	return l.ID
 }
