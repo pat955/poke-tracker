@@ -2,11 +2,13 @@ module github.com/pat955/pokedex
 
 go 1.18
 
-require github.com/fatih/color v1.16.0
+require (
+	github.com/fatih/color v1.16.0
+	github.com/go-zoox/fetch v1.8.1
+)
 
 require (
 	github.com/go-zoox/core-utils v1.2.11 // indirect
-	github.com/go-zoox/fetch v1.8.1 // indirect
 	github.com/go-zoox/headers v1.0.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
