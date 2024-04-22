@@ -9,57 +9,36 @@ import (
 	"os"
 
 	"github.com/go-zoox/fetch"
+	"github.com/pat955/pokedex/internal/pokeapi"
 )
 
-type data interface {
-	String() string
-	GetUrl() string
-	GetId() int
-}
 type cliCommand struct {
 	Name    string
 	Desc    string
-	Command func() error
+	Command func(pokeapi.Cache) error
 	Config  *Config
 }
 
 type Config struct {
-	CallName string
-	Name     string
-	Desc     string
-	Command  func() error
-}
-
-func getConfigs() map[string]*Config {
-	return map[string]*Config{
-		"prevMap": {
-			CallName: "prev",
-			Name:     "Previous",
-			Desc:     "placeholder",
-			Command: func() error {
-				fmt.Println("prev map!")
-				return nil
-			},
-		},
-	}
+	prevURL    string
+	currentURL string
 }
 
 func getCommands() map[string]cliCommand {
 	currentLocationID := 0
-	configs := getConfigs()
 	return map[string]cliCommand{
 		"help": {
 			Name: "Help",
 			Desc: "Get info about this cli and other commands",
-			Command: func() error {
-				fmt.Println("help received")
+			Command: func(c pokeapi.Cache) error {
+				commandHelp(&Config{})
 				return nil
 			},
 		},
 		"exit": {
 			Name: "Exit",
 			Desc: "Exit command line",
-			Command: func() error {
+			Command: func(pokeapi.Cache) error {
 				fmt.Println("Exiting")
 				os.Exit(0)
 				return nil
@@ -69,32 +48,35 @@ func getCommands() map[string]cliCommand {
 		"map": {
 			Name: "Map",
 			Desc: "Map of the next 20 area of pokemon",
-			Command: func() error {
+			Command: func(c pokeapi.Cache) error {
 				for i := 0; i < 20; i++ {
 					currentLocationID++
-					Location := LocationData{}
-					call(fmt.Sprintf("location/%v", currentLocationID), &Location)
-					fmt.Println(Location.String())
+					bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
+
+					l := LocationData{}
+					json.Unmarshal(bytes, &l)
+					fmt.Println(l.String())
+
 				}
 				return nil
 			},
-			Config: configs["prevmap"],
 		},
 	}
 }
 
-func call(str string, dataLocation data) {
-	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/%s/", str)
+func call(endpoint string, c pokeapi.Cache) []byte {
+	bytes, found := c.Get(endpoint)
+	if found {
+		return bytes
+	}
+
 	response, err := fetch.Get(endpoint)
 	if err != nil {
 		panic(err)
 	}
-	responsejson, err := response.JSON()
-	if err != nil {
-		panic(err)
-	}
-	json.Unmarshal([]byte(responsejson), &dataLocation)
 
+	c.Add(endpoint, response.Body)
+	return response.Body
 }
 
 type LocationData struct {
@@ -127,10 +109,18 @@ type LocationData struct {
 func (l LocationData) String() string {
 	return fmt.Sprint(l.ID, " "+l.Name+" ", l.Region.Name+" ")
 }
-
 func (l LocationData) GetUrl() string {
 	return l.Region.URL
 }
 func (l LocationData) GetId() int {
 	return l.ID
+}
+
+func commandHelp(cfg *Config) error {
+	fmt.Println("\nWelcome to the Pokedex!\nUsage:\n")
+	for _, cmd := range getCommands() {
+		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
+	}
+	fmt.Println()
+	return nil
 }

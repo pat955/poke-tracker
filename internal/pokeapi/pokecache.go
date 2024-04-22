@@ -4,7 +4,6 @@ package pokeapi
 // Remove cache after 1-30mins
 import (
 	"fmt"
-	"reflect"
 	"sync"
 	"time"
 )
@@ -35,7 +34,6 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 }
 
 func NewCache(interval time.Duration) Cache {
-	fmt.Print(reflect.TypeOf(interval))
 	c := Cache{&sync.RWMutex{}, make(map[string]CacheEntry)}
 	go c.ReapLoop(interval)
 	return c
@@ -55,6 +53,7 @@ func (c *Cache) reap(now time.Time, last time.Duration) {
 	defer c.mu.Unlock()
 	for k, v := range c.entries {
 		if v.timeCreated.Before(now.Add(-last)) {
+			fmt.Println(k, " deleted!")
 			delete(c.entries, k)
 		}
 	}
