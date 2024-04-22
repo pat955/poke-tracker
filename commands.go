@@ -6,6 +6,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/go-zoox/fetch"
 )
 
 type cliCommand struct {
@@ -61,7 +63,7 @@ func getCommands() map[string]cliCommand {
 			Name: "Map",
 			Desc: "Map the next 20 area of pokemon",
 			Command: func() error {
-				call("")
+				call(fmt.Sprintf("location/%v", 1))
 				return nil
 			},
 			Config: configs["prevmap"],
@@ -71,6 +73,11 @@ func getCommands() map[string]cliCommand {
 
 func call(s string) {
 	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/%s/", s)
-	fmt.Println(endpoint)
+	response, err := fetch.Get(endpoint)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(response.JSON())
 
 }
