@@ -19,6 +19,7 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
+	pokeInventory := newPokedex()
 	commands := getCommands()
 	cache := pokeapi.NewCache(500 * time.Second)
 	for {
@@ -32,7 +33,7 @@ func main() {
 			if len(line) != 1 {
 				args = line[1]
 			}
-			fmt.Printf("Input was: %q\n", line)
+			// fmt.Printf("Input was: %q\n", line)
 		}
 		if cmd == "" {
 			continue
@@ -42,7 +43,10 @@ func main() {
 			fmt.Println(errors.New("unknown command, type help for commands"))
 			continue
 		}
-		command.Command(cache, args)
+		err := command.Command(cache, pokeInventory, args)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 	}
 }

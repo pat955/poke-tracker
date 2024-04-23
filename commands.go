@@ -8,7 +8,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/go-zoox/fetch"
 	"github.com/pat955/pokedex/internal/pokeapi"
@@ -17,7 +19,7 @@ import (
 type cliCommand struct {
 	Name    string
 	Desc    string
-	Command func(pokeapi.Cache, string) error
+	Command func(pokeapi.Cache, Pokedex, string) error
 	Config  *Config
 }
 
@@ -32,15 +34,15 @@ func getCommands() map[string]cliCommand {
 		"help": {
 			Name: "Help",
 			Desc: "Get info about this cli and other commands",
-			Command: func(c pokeapi.Cache, s string) error {
-				commandHelp(&Config{})
+			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
+				commandHelp()
 				return nil
 			},
 		},
 		"exit": {
 			Name: "Exit",
 			Desc: "Exit command line",
-			Command: func(c pokeapi.Cache, s string) error {
+			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
 				fmt.Println("Exiting")
 				os.Exit(0)
 				return nil
@@ -50,7 +52,7 @@ func getCommands() map[string]cliCommand {
 		"map": {
 			Name: "Map",
 			Desc: "Map of the next 10 area of pokemon",
-			Command: func(c pokeapi.Cache, s string) error {
+			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
 				for i := 0; i < 10; i++ {
 					currentLocationID++
 					bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
@@ -66,7 +68,7 @@ func getCommands() map[string]cliCommand {
 		"mapb": {
 			Name: "Map Back",
 			Desc: "Get the previous 10 areas",
-			Command: func(c pokeapi.Cache, s string) error {
+			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
 				if currentLocationID == 0 {
 					return errors.New("you're at the start, cannot go further back. type map to continue")
 				}
@@ -83,16 +85,46 @@ func getCommands() map[string]cliCommand {
 		},
 		"explore": {
 			Name: "Explore Area",
-			Desc: "explore current area, called with: >>> explore <area_name>",
-			Command: func(c pokeapi.Cache, area_name string) error {
-				fmt.Println("Exploring", area_name, "...")
-				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v-area/", area_name), c)
+			Desc: "explore current area, called with: >>> explore <areaName>",
+			Command: func(c pokeapi.Cache, i Pokedex, areaName string) error {
+				if areaName == "" {
+					return errors.New("explore error: No location provided.\nUse map command to see accepted areas")
+				}
+				fmt.Println("Exploring", areaName, "...")
+				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v-area/", areaName), c)
 				area := AreaData{}
 				json.Unmarshal(bytes, &area)
 				fmt.Println("Found Pokemon: ")
 				for _, pokemon := range area.GetPokemonEncounters() {
-					fmt.Println("-", pokemon.Name)
+					_, ok := i.Pokemon[pokemon.Name]
+					if !ok {
+						fmt.Println("-", pokemon.Name)
+					}
 				}
+				return nil
+			},
+		},
+		"catch": {
+			Name: "Catch Pokemon",
+			Desc: "Catch pokemon using this command after exploring area",
+			Command: func(c pokeapi.Cache, i Pokedex, pokemonName string) error {
+				if pokemonName == "" {
+					return errors.New("catch error: No pokemon name provided.\nUse explore command to see pokemon in your area")
+				}
+				// check if already caught
+				fmt.Println("Attempting to catch", pokemonName, "...")
+				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", pokemonName), c)
+				pokemondata := PokemonData{}
+				json.Unmarshal(bytes, &pokemondata)
+				rand.Seed(time.Now().UnixMilli())
+				fmt.Print(rand.Intn(1000))
+				if rand.Intn(1000) >= 500 {
+					i.Add(pokemondata)
+					fmt.Println("You cautgth", pokemonName+"!")
+				} else {
+					fmt.Println("Failed to catch", pokemonName+"!")
+				}
+				i.PrintOutMyPokemon()
 				return nil
 			},
 		},
@@ -113,7 +145,7 @@ func call(endpoint string, c pokeapi.Cache) []byte {
 	c.Add(endpoint, response.Body)
 	return response.Body
 }
-func commandHelp(cfg *Config) error {
+func commandHelp() error {
 	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
 	for _, cmd := range getCommands() {
 		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
