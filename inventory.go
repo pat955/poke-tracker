@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
 )
@@ -16,8 +17,13 @@ func newPokedex() Pokedex {
 	return p
 }
 func (dex Pokedex) PrintOutMyPokemon() {
+	fmt.Println("Pokemon in pokedex:")
 	for _, pokemon := range dex.Pokemon {
-		fmt.Println("-", color.MagentaString(pokemon.Name))
+		if pokemon.Nickname != "" {
+			fmt.Println("-", color.MagentaString(pokemon.Nickname), "("+color.CyanString((strings.Title(pokemon.Name)))+")")
+		} else {
+			fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
+		}
 	}
 }
 func (dex Pokedex) Add(poke PokemonData) {

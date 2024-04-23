@@ -5,11 +5,13 @@ package main
 // find out why id 21 is empty
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-zoox/fetch"
@@ -112,15 +114,31 @@ func getCommands() map[string]cliCommand {
 					return errors.New("catch error: No pokemon name provided.\nUse explore command to see pokemon in your area")
 				}
 				// check if already caught
+				// several rounds of *click, *click*, italic *click* when caught with a timer to create suspense
 				fmt.Println("Attempting to catch", pokemonName, "...")
-				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", pokemonName), c)
-				pokemondata := PokemonData{}
+
+				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", strings.ToLower(pokemonName)), c)
+				pokemondata := &PokemonData{}
+				fmt.Println("!" + pokemondata.Nickname + "!")
 				json.Unmarshal(bytes, &pokemondata)
+
 				rand.Seed(time.Now().UnixMilli())
-				fmt.Print(rand.Intn(1000))
 				if rand.Intn(1000) >= 500 {
-					i.Add(pokemondata)
-					fmt.Println("You cautgth", pokemonName+"!")
+					fmt.Println("You caught", pokemonName+"!")
+					fmt.Println("Give", pokemonName, "a nickname? (y/n)")
+					scanner := bufio.NewScanner(os.Stdin)
+					if scanner.Scan() {
+						answer := scanner.Text()
+						if answer == "y" {
+							if scanner.Scan() {
+								pokemondata.Nickname = scanner.Text()
+								fmt.Println(&pokemondata.Nickname)
+							}
+
+						}
+
+					}
+					i.Add(*pokemondata)
 				} else {
 					fmt.Println("Failed to catch", pokemonName+"!")
 				}

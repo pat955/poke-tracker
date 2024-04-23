@@ -123,6 +123,7 @@ type Pokemon struct {
 }
 
 type PokemonData struct {
+	Nickname  string
 	Abilities []struct {
 		Ability struct {
 			Name string `json:"name"`
