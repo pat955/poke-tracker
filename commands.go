@@ -136,7 +136,7 @@ func getCommands() map[string]cliCommand {
 				rand.Seed(time.Now().UnixMilli())
 				formattedName := color.HiCyanString(strings.Title(pokemonName))
 				if rand.Intn(1000) >= 0 {
-					fmt.Println("You caught", formattedName+"!")
+					fmt.Println("You caught", formattedName+"!\n")
 					fmt.Println("Give", formattedName, "a nickname? (y/n)")
 					scanner := bufio.NewScanner(os.Stdin)
 					if scanner.Scan() {
@@ -157,7 +157,7 @@ func getCommands() map[string]cliCommand {
 		},
 		"inspect": {
 			Name: "Inspect",
-			Desc: "Inspect your pokemon and items",
+			Desc: "Inspect a pokemon or an item",
 			Command: func(c pokeapi.Cache, p Pokedex, pokemon_name string) error {
 				return p.Inspect(pokemon_name)
 
