@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/go-zoox/fetch"
 	"github.com/pat955/pokedex/internal/pokeapi"
 )
@@ -133,23 +134,24 @@ func getCommands() map[string]cliCommand {
 				json.Unmarshal(bytes, &pokemondata)
 
 				rand.Seed(time.Now().UnixMilli())
+				formattedName := color.HiCyanString(strings.Title(pokemonName))
 				if rand.Intn(1000) >= 0 {
-					fmt.Println("You caught", pokemonName+"!")
-					fmt.Println("Give", pokemonName, "a nickname? (y/n)")
+					fmt.Println("You caught", formattedName+"!")
+					fmt.Println("Give", formattedName, "a nickname? (y/n)")
 					scanner := bufio.NewScanner(os.Stdin)
 					if scanner.Scan() {
 						answer := scanner.Text()
 						if answer == "y" {
 							if scanner.Scan() {
 								pokemondata.Nickname = scanner.Text()
+								fmt.Println("Nickname", color.HiMagentaString(pokemondata.Nickname), "given to", formattedName)
 							}
 						}
 					}
 					i.Add(*pokemondata)
 				} else {
-					fmt.Println("Failed to catch", pokemonName+"!")
+					fmt.Println("Failed to catch", formattedName+"!")
 				}
-				i.PrintOutMyPokemon()
 				return nil
 			},
 		},
@@ -159,6 +161,14 @@ func getCommands() map[string]cliCommand {
 			Command: func(c pokeapi.Cache, p Pokedex, pokemon_name string) error {
 				return p.Inspect(pokemon_name)
 
+			},
+		},
+		"pokedex": {
+			Name: "Pokedex",
+			Desc: "See all the pokemon you've caught so far",
+			Command: func(_ pokeapi.Cache, p Pokedex, _ string) error {
+				p.PrintOutMyPokemon()
+				return nil
 			},
 		},
 	}
@@ -180,6 +190,7 @@ func call(endpoint string, c pokeapi.Cache) ([]byte, error) {
 	c.Add(endpoint, response.Body)
 	return response.Body, nil
 }
+
 func commandHelp() error {
 	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
 	for _, cmd := range getCommands() {
