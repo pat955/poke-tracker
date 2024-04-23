@@ -2,9 +2,11 @@ package main
 
 // TODO
 // Add callnames, []string
+// find out why id 21 is empty
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -15,13 +17,13 @@ import (
 type cliCommand struct {
 	Name    string
 	Desc    string
-	Command func(pokeapi.Cache) error
+	Command func(pokeapi.Cache, string) error
 	Config  *Config
 }
 
 type Config struct {
-	prevURL    string
-	currentURL string
+	CallName string
+	PrevURL  string
 }
 
 func getCommands() map[string]cliCommand {
@@ -30,7 +32,7 @@ func getCommands() map[string]cliCommand {
 		"help": {
 			Name: "Help",
 			Desc: "Get info about this cli and other commands",
-			Command: func(c pokeapi.Cache) error {
+			Command: func(c pokeapi.Cache, s string) error {
 				commandHelp(&Config{})
 				return nil
 			},
@@ -38,7 +40,7 @@ func getCommands() map[string]cliCommand {
 		"exit": {
 			Name: "Exit",
 			Desc: "Exit command line",
-			Command: func(pokeapi.Cache) error {
+			Command: func(c pokeapi.Cache, s string) error {
 				fmt.Println("Exiting")
 				os.Exit(0)
 				return nil
@@ -47,9 +49,9 @@ func getCommands() map[string]cliCommand {
 
 		"map": {
 			Name: "Map",
-			Desc: "Map of the next 20 area of pokemon",
-			Command: func(c pokeapi.Cache) error {
-				for i := 0; i < 20; i++ {
+			Desc: "Map of the next 10 area of pokemon",
+			Command: func(c pokeapi.Cache, s string) error {
+				for i := 0; i < 10; i++ {
 					currentLocationID++
 					bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
 
@@ -57,6 +59,37 @@ func getCommands() map[string]cliCommand {
 					json.Unmarshal(bytes, &l)
 					fmt.Println(l.String())
 
+				}
+				return nil
+			},
+		},
+		"mapb": {
+			Name: "Map Back",
+			Desc: "Get the previous 10 areas",
+			Command: func(c pokeapi.Cache, s string) error {
+				if currentLocationID == 0 {
+					return errors.New("you're at the start, cannot go further back. type map to continue")
+				}
+				for i := 0; i < 10; i++ {
+					currentLocationID--
+					bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
+
+					l := LocationData{}
+					json.Unmarshal(bytes, &l)
+					fmt.Println(l.String())
+				}
+				return nil
+			},
+		},
+		"explore": {
+			Name: "Explore Area",
+			Desc: "explore current area, called with: >>> explore <area_name>",
+			Command: func(c pokeapi.Cache, area_name string) error {
+				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v-area/", area_name), c)
+				area := AreaData{}
+				json.Unmarshal(bytes, &area)
+				for i, pokemon := range area.GetPokemonEncounters() {
+					fmt.Println("Nr.", i, pokemon.Name)
 				}
 				return nil
 			},
@@ -78,46 +111,8 @@ func call(endpoint string, c pokeapi.Cache) []byte {
 	c.Add(endpoint, response.Body)
 	return response.Body
 }
-
-type LocationData struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name"`
-	Region struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"region"`
-	Names []struct {
-		Name     string `json:"name"`
-		Language struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"language"`
-	} `json:"names"`
-	GameIndices []struct {
-		GameIndex  int `json:"game_index"`
-		Generation struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"generation"`
-	} `json:"game_indices"`
-	Areas []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"areas"`
-}
-
-func (l LocationData) String() string {
-	return fmt.Sprint(l.ID, " "+l.Name+" ", l.Region.Name+" ")
-}
-func (l LocationData) GetUrl() string {
-	return l.Region.URL
-}
-func (l LocationData) GetId() int {
-	return l.ID
-}
-
 func commandHelp(cfg *Config) error {
-	fmt.Println("\nWelcome to the Pokedex!\nUsage:\n")
+	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
 	for _, cmd := range getCommands() {
 		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
 	}

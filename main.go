@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -10,20 +13,31 @@ import (
 )
 
 func main() {
+	scanner := bufio.NewScanner(os.Stdin)
 	commands := getCommands()
-	cache := pokeapi.NewCache(100 * time.Second)
+	cache := pokeapi.NewCache(500 * time.Second)
 	for {
-		fmt.Print(color.HiGreenString("Pokedex > "))
+		fmt.Print(color.HiGreenString("Pokedex >>> "))
 
-		var input string
+		var cmd, args string
 
-		fmt.Scanln(&input)
-		command, ok := commands[input]
+		if scanner.Scan() {
+			line := strings.Split(scanner.Text(), " ")
+			cmd = line[0]
+			if len(line) != 1 {
+				args = line[1]
+			}
+			fmt.Printf("Input was: %q\n", line)
+		}
+		if cmd == "" {
+			continue
+		}
+		command, ok := commands[cmd]
 		if !ok {
 			fmt.Println(errors.New("unknown command, type help for commands"))
 			continue
 		}
-		command.Command(cache)
+		command.Command(cache, args)
 
 	}
 }
