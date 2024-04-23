@@ -1,7 +1,7 @@
 package main
 
 // TODO
-// Add Catch
+// Change to cases instead of decr strings
 // Add Save Game
 //
 

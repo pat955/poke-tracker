@@ -26,8 +26,11 @@ func (dex Pokedex) Inspect(pokemon_name string) error {
 	}
 
 	fmt.Println(color.RedString("-------Stats-------"))
-	data.GetBaseStats()
+	data.PrintBaseStats()
 	fmt.Println(color.RedString("-------------------"))
+	fmt.Println(color.HiYellowString("-------Types-------"))
+	data.PrintTypes()
+	fmt.Println(color.HiYellowString("-------------------"))
 
 	return nil
 }

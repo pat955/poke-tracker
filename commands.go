@@ -56,7 +56,10 @@ func getCommands() map[string]cliCommand {
 			Desc: "Get the next 10 areas",
 			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
 				for i := 0; i < 10; i++ {
-					bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
+					bytes, err := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
+					if err != nil {
+						return err
+					}
 					l := LocationData{}
 					json.Unmarshal(bytes, &l)
 					fmt.Println(l.String())
@@ -74,7 +77,10 @@ func getCommands() map[string]cliCommand {
 				}
 				for i := 0; i < 10; i++ {
 					currentLocationID--
-					bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
+					bytes, err := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
+					if err != nil {
+						return err
+					}
 
 					l := LocationData{}
 					json.Unmarshal(bytes, &l)
@@ -91,7 +97,10 @@ func getCommands() map[string]cliCommand {
 					return errors.New("explore error: No location provided.\nUse map command to see accepted areas")
 				}
 				fmt.Println("Exploring", areaName, "...")
-				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v-area/", areaName), c)
+				bytes, err := call(fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v-area/", areaName), c)
+				if err != nil {
+					return err
+				}
 				area := AreaData{}
 				json.Unmarshal(bytes, &area)
 				fmt.Println("Found Pokemon: ")
@@ -115,7 +124,10 @@ func getCommands() map[string]cliCommand {
 				// several rounds of *click, *click*, italic *click* when caught with a timer to create suspense
 				fmt.Println("Attempting to catch", pokemonName, "...")
 
-				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", strings.ToLower(pokemonName)), c)
+				bytes, err := call(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", strings.ToLower(pokemonName)), c)
+				if err != nil {
+					return err
+				}
 				pokemondata := &PokemonData{}
 				fmt.Println("!" + pokemondata.Nickname + "!")
 				json.Unmarshal(bytes, &pokemondata)
@@ -152,19 +164,21 @@ func getCommands() map[string]cliCommand {
 	}
 }
 
-func call(endpoint string, c pokeapi.Cache) []byte {
+func call(endpoint string, c pokeapi.Cache) ([]byte, error) {
 	bytes, found := c.Get(endpoint)
 	if found {
-		return bytes
+		return bytes, nil
 	}
 
 	response, err := fetch.Get(endpoint)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-
+	if len(response.Body) < 30 {
+		return nil, errors.New("not found: Check if you've typed in the name correctly")
+	}
 	c.Add(endpoint, response.Body)
-	return response.Body
+	return response.Body, nil
 }
 func commandHelp() error {
 	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")

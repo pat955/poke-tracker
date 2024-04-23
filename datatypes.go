@@ -383,8 +383,18 @@ type PokemonData struct {
 	Weight int `json:"weight"`
 }
 
-func (p PokemonData) GetBaseStats() {
+func (p PokemonData) PrintBaseStats() {
 	for _, stat := range p.Stats {
 		fmt.Println(strings.Title(stat.Stat.Name)+":", stat.BaseStat)
+	}
+}
+func (p PokemonData) PrintMoves() {
+	for _, move := range p.Moves {
+		fmt.Println(strings.Title(move.Move.Name)+":", move.Move.Name)
+	}
+}
+func (p PokemonData) PrintTypes() {
+	for _, typ := range p.Types {
+		fmt.Println(strings.Title(typ.Type.Name))
 	}
 }
