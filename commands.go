@@ -85,11 +85,13 @@ func getCommands() map[string]cliCommand {
 			Name: "Explore Area",
 			Desc: "explore current area, called with: >>> explore <area_name>",
 			Command: func(c pokeapi.Cache, area_name string) error {
+				fmt.Println("Exploring", area_name, "...")
 				bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v-area/", area_name), c)
 				area := AreaData{}
 				json.Unmarshal(bytes, &area)
-				for i, pokemon := range area.GetPokemonEncounters() {
-					fmt.Println("Nr.", i, pokemon.Name)
+				fmt.Println("Found Pokemon: ")
+				for _, pokemon := range area.GetPokemonEncounters() {
+					fmt.Println("-", pokemon.Name)
 				}
 				return nil
 			},

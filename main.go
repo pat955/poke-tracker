@@ -1,5 +1,10 @@
 package main
 
+// TODO
+// Add Catch
+// Add Save Game
+//
+
 import (
 	"bufio"
 	"errors"
