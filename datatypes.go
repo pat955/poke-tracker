@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 type DataTypes interface {
@@ -380,4 +381,10 @@ type PokemonData struct {
 		} `json:"type"`
 	} `json:"types"`
 	Weight int `json:"weight"`
+}
+
+func (p PokemonData) GetBaseStats() {
+	for _, stat := range p.Stats {
+		fmt.Println(strings.Title(stat.Stat.Name)+":", stat.BaseStat)
+	}
 }

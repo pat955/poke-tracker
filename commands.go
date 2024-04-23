@@ -30,12 +30,13 @@ type Config struct {
 	PrevURL  string
 }
 
+// Get the names of all commands, execute with x.command(arg, arg, arg)
 func getCommands() map[string]cliCommand {
 	currentLocationID := 0
 	return map[string]cliCommand{
 		"help": {
 			Name: "Help",
-			Desc: "Get info about this cli and other commands",
+			Desc: "Get the description of all available commands",
 			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
 				commandHelp()
 				return nil
@@ -45,34 +46,31 @@ func getCommands() map[string]cliCommand {
 			Name: "Exit",
 			Desc: "Exit command line",
 			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
-				fmt.Println("Exiting")
+				fmt.Println("Exiting...")
 				os.Exit(0)
 				return nil
 			},
 		},
-
 		"map": {
 			Name: "Map",
-			Desc: "Map of the next 10 area of pokemon",
+			Desc: "Get the next 10 areas",
 			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
 				for i := 0; i < 10; i++ {
-					currentLocationID++
 					bytes := call(fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID), c)
-
 					l := LocationData{}
 					json.Unmarshal(bytes, &l)
 					fmt.Println(l.String())
-
+					currentLocationID++
 				}
 				return nil
 			},
 		},
 		"mapb": {
 			Name: "Map Back",
-			Desc: "Get the previous 10 areas",
+			Desc: "Get the previous 10 visited areas",
 			Command: func(c pokeapi.Cache, i Pokedex, s string) error {
 				if currentLocationID == 0 {
-					return errors.New("you're at the start, cannot go further back. type map to continue")
+					return errors.New("you're at the start, you cannot go further back. type map to go forward")
 				}
 				for i := 0; i < 10; i++ {
 					currentLocationID--
@@ -123,7 +121,7 @@ func getCommands() map[string]cliCommand {
 				json.Unmarshal(bytes, &pokemondata)
 
 				rand.Seed(time.Now().UnixMilli())
-				if rand.Intn(1000) >= 500 {
+				if rand.Intn(1000) >= 0 {
 					fmt.Println("You caught", pokemonName+"!")
 					fmt.Println("Give", pokemonName, "a nickname? (y/n)")
 					scanner := bufio.NewScanner(os.Stdin)
@@ -132,11 +130,8 @@ func getCommands() map[string]cliCommand {
 						if answer == "y" {
 							if scanner.Scan() {
 								pokemondata.Nickname = scanner.Text()
-								fmt.Println(&pokemondata.Nickname)
 							}
-
 						}
-
 					}
 					i.Add(*pokemondata)
 				} else {
@@ -144,6 +139,14 @@ func getCommands() map[string]cliCommand {
 				}
 				i.PrintOutMyPokemon()
 				return nil
+			},
+		},
+		"inspect": {
+			Name: "Inspect",
+			Desc: "Inspect your pokemon and items",
+			Command: func(c pokeapi.Cache, p Pokedex, pokemon_name string) error {
+				return p.Inspect(pokemon_name)
+
 			},
 		},
 	}

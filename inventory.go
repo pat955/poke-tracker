@@ -1,6 +1,9 @@
 package main
 
+// TODO
+// Maybe replace nickname= "" with nickname = name
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -16,6 +19,19 @@ func newPokedex() Pokedex {
 	p.Pokemon = make(map[string]PokemonData, 0)
 	return p
 }
+func (dex Pokedex) Inspect(pokemon_name string) error {
+	data, ok := dex.Pokemon[pokemon_name]
+	if !ok {
+		return errors.New("inspect error: " + pokemon_name + " not found with you")
+	}
+
+	fmt.Println(color.RedString("-------Stats-------"))
+	data.GetBaseStats()
+	fmt.Println(color.RedString("-------------------"))
+
+	return nil
+}
+
 func (dex Pokedex) PrintOutMyPokemon() {
 	fmt.Println("Pokemon in pokedex:")
 	for _, pokemon := range dex.Pokemon {
