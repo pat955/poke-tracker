@@ -11,6 +11,8 @@ type DataTypes interface {
 	GetUrl() string
 }
 type AreaData struct {
+	Explored             bool
+	CurrentEncounters    map[string]Pokemon
 	EncounterMethodRates []struct {
 		EncounterMethod struct {
 			Name string `json:"name"`
@@ -40,8 +42,9 @@ type AreaData struct {
 	} `json:"names"`
 	PokemonEncounters []struct {
 		Pokemon struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
+			Name   string `json:"name"`
+			URL    string `json:"url"`
+			Caught bool
 		} `json:"pokemon"`
 		VersionDetails []struct {
 			EncounterDetails []struct {
@@ -63,17 +66,18 @@ type AreaData struct {
 	} `json:"pokemon_encounters"`
 }
 
+func (a AreaData) GetViableEncounters() []Pokemon {
+	viableEncounter := make([]Pokemon, 0)
+	for _, enc := range a.PokemonEncounters {
+		if !enc.Pokemon.Caught {
+			viableEncounter = append(viableEncounter, enc.Pokemon)
+		}
+	}
+	return viableEncounter
+}
 func (a AreaData) String() string {
 	return ""
 }
-func (a AreaData) GetPokemonEncounters() []Pokemon {
-	pokemonList := make([]Pokemon, 0)
-	for _, item := range a.PokemonEncounters {
-		pokemonList = append(pokemonList, item.Pokemon)
-	}
-	return pokemonList
-}
-
 func (a AreaData) GetUrl() string {
 	return a.Location.URL
 }
@@ -119,8 +123,9 @@ func (l LocationData) GetId() int {
 }
 
 type Pokemon struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	Name   string `json:"name"`
+	URL    string `json:"url"`
+	Caught bool
 }
 
 type PokemonData struct {
@@ -398,3 +403,16 @@ func (p PokemonData) PrintTypes() {
 		fmt.Println(strings.Title(typ.Type.Name))
 	}
 }
+
+// type Encounter struct {
+// 	Name   string
+// 	Caught bool
+// }
+
+// func NewEncounter(name string) Encounter {
+// 	e := Encounter{
+// 		Name:   name,
+// 		Caught: true,
+// 	}
+// 	return e
+// }

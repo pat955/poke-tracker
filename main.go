@@ -20,8 +20,10 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	pokeInventory := newPokedex()
-	commands := getCommands()
-	cache := pokeapi.NewCache(500 * time.Second)
+
+	cache := pokeapi.NewCache(30 * time.Minute)
+	commands := getCommands(cache, pokeInventory)
+
 	for {
 		fmt.Print(color.HiGreenString("Pokedex >>> "))
 
@@ -29,6 +31,7 @@ func main() {
 
 		if scanner.Scan() {
 			line := strings.Split(scanner.Text(), " ")
+			fmt.Println(line)
 			cmd = line[0]
 			if len(line) != 1 {
 				args = line[1]
@@ -43,7 +46,7 @@ func main() {
 			fmt.Println(errors.New("unknown command, type help for commands"))
 			continue
 		}
-		err := command.Command(cache, pokeInventory, args)
+		err := command.Command(args)
 		if err != nil {
 			fmt.Println(err)
 		}

@@ -11,42 +11,55 @@ import (
 )
 
 type Pokedex struct {
-	Pokemon map[string]PokemonData
+	CurrentPokemon map[string]PokemonData
+	Storage        map[string]PokemonData
+	Pokedex        map[string]PokemonData
 }
 
 func newPokedex() Pokedex {
 	p := Pokedex{}
-	p.Pokemon = make(map[string]PokemonData, 0)
+	p.CurrentPokemon = make(map[string]PokemonData, 0)
+	p.Storage = make(map[string]PokemonData, 0)
+	p.Pokedex = make(map[string]PokemonData, 0)
 	return p
 }
 func (dex Pokedex) Inspect(pokemon_name string) error {
-	data, ok := dex.Pokemon[pokemon_name]
+	data, ok := dex.CurrentPokemon[pokemon_name]
 	if !ok {
-		return errors.New("inspect error: " + pokemon_name + " not found with you")
+		return errors.New(pokemon_name + " not in your inventory")
 	}
-
 	fmt.Println(color.RedString("-------Stats-------"))
 	data.PrintBaseStats()
 	fmt.Println(color.RedString("-------------------"))
+
 	fmt.Println(color.HiYellowString("-------Types-------"))
 	data.PrintTypes()
 	fmt.Println(color.HiYellowString("-------------------"))
-
 	return nil
 }
-
 func (dex Pokedex) PrintOutMyPokemon() {
 	fmt.Println("Pokemon in pokedex:")
-	for _, pokemon := range dex.Pokemon {
-		if pokemon.Nickname != "" {
+	for _, pokemon := range dex.CurrentPokemon {
+		if pokemon.Nickname != pokemon.Name {
 			fmt.Println("-", color.MagentaString(pokemon.Nickname), "("+color.CyanString((strings.Title(pokemon.Name)))+")")
 		} else {
 			fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
 		}
 	}
 }
+func (dex Pokedex) PrintOutPokedex() {
+	for _, pokemon := range dex.Pokedex {
+		fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
+	}
+}
 func (dex Pokedex) Add(poke PokemonData) {
-	dex.Pokemon[poke.Name] = poke
+	if len(dex.CurrentPokemon) >= 6 {
+		dex.Storage[poke.Name] = poke
+		fmt.Println("Put", poke.Nickname, "in storage")
+	} else {
+		dex.CurrentPokemon[poke.Name] = poke
+	}
+	dex.Pokedex[poke.Name] = poke
 }
 
 type ItemInventory struct {
