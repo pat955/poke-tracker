@@ -7,8 +7,8 @@ import (
 
 type DataTypes interface {
 	String() string
-	GetID() string
-	GetUrl() string
+	GetID() int
+	GetURL() string
 }
 type AreaData struct {
 	Explored             bool
@@ -78,10 +78,10 @@ func (a AreaData) GetViableEncounters() []Pokemon {
 func (a AreaData) String() string {
 	return ""
 }
-func (a AreaData) GetUrl() string {
+func (a AreaData) GetURL() string {
 	return a.Location.URL
 }
-func (a AreaData) GetId() int {
+func (a AreaData) GetID() int {
 	return a.ID
 }
 
@@ -115,10 +115,10 @@ type LocationData struct {
 func (l LocationData) String() string {
 	return fmt.Sprint(l.ID, " "+l.Name+" ", l.Region.Name+" ")
 }
-func (l LocationData) GetUrl() string {
+func (l LocationData) GetURL() string {
 	return l.Region.URL
 }
-func (l LocationData) GetId() int {
+func (l LocationData) GetID() int {
 	return l.ID
 }
 
@@ -388,6 +388,15 @@ type PokemonData struct {
 	Weight int `json:"weight"`
 }
 
+func (p PokemonData) String() string {
+	return p.Name
+}
+func (p PokemonData) GetID() int {
+	return p.ID
+}
+func (p PokemonData) GetURL() string {
+	return p.Species.URL
+}
 func (p PokemonData) PrintBaseStats() {
 	for _, stat := range p.Stats {
 		fmt.Println(strings.Title(stat.Stat.Name)+":", stat.BaseStat)

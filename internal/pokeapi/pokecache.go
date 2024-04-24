@@ -8,29 +8,43 @@ import (
 	"time"
 )
 
+type DataTypes interface {
+	String() string
+	GetID() int
+	GetURL() string
+}
+
 type Cache struct {
 	mu      *sync.RWMutex
-	entries map[string]CacheEntry
+	entries map[string]CacheEntry // string is a unique id
 }
 
 type CacheEntry struct {
 	timeCreated time.Time
-	val         []byte
+	dataStruct  DataTypes
 }
 
-func (c *Cache) Add(key string, val []byte) {
+func (c *Cache) Print() {
+	for i, entry := range c.entries {
+		fmt.Println("Nr."+i, entry.dataStruct.String())
+	}
+}
+func (c *Cache) Add(keyID string, dataType DataTypes) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.entries[key] = CacheEntry{time.Now(), val}
+	c.entries[keyID] = CacheEntry{
+		timeCreated: time.Now(),
+		dataStruct:  dataType,
+	}
 }
-func (c *Cache) Get(key string) ([]byte, bool) {
+func (c *Cache) Get(key string) (DataTypes, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	entry, found := c.entries[key]
 	if !found {
 		return nil, false
 	}
-	return entry.val, true
+	return entry.dataStruct, true
 }
 
 func NewCache(interval time.Duration) Cache {
@@ -45,7 +59,6 @@ func (c *Cache) ReapLoop(interval time.Duration) {
 	for range ticker.C {
 		c.reap(time.Now(), interval)
 	}
-
 }
 
 func (c *Cache) reap(now time.Time, last time.Duration) {
