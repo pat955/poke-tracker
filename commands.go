@@ -55,18 +55,19 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 		},
 		"map": {
 			Name: "Map",
-			Desc: "Get the next 10 areas",
+			Desc: "Get the next 5 areas, the red name is the location. Explore the under areas. eks: >>> explore eterna-city-west-gate",
 			Command: func(_ string) error {
-
-				for i := 0; i < 10; i++ {
+				fmt.Println(color.GreenString("EXPLORABLE AREAS:"))
+				for i := 0; i < 5; i++ {
 					endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID)
-					// check for cache
 					var locData LocationData
 					data, err := checkAndCall(cache, endpoint, &locData)
 					if err != nil {
 						return err
 					}
-					fmt.Println(data.String())
+
+					data.String()
+					fmt.Println()
 					currentLocationID++
 				}
 				return nil
@@ -74,20 +75,27 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 		},
 		"mapb": {
 			Name: "Map Back",
-			Desc: "Get the previous 10 visited areas",
+			Desc: "Get the previous 5 visited areas",
 			Command: func(_ string) error {
-				if currentLocationID == 0 {
+				if currentLocationID == 1 {
 					return errors.New("location error: You're at the start, unable to go back further. Type map to go forward")
 				}
-				for i := 0; i < 10; i++ {
+				currentLocationID -= 5
+				fmt.Println(color.GreenString("EXPLORABLE AREAS:"))
+
+				// print backwards instead of 10 9 8 like it does now, maybe...
+				for i := 0; i < 5; i++ {
 					currentLocationID--
 					endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID)
+
 					var locData LocationData
 					data, err := checkAndCall(cache, endpoint, &locData)
 					if err != nil {
 						return err
 					}
-					fmt.Println(data.String())
+					data.String()
+					fmt.Println()
+
 				}
 				return nil
 			},
@@ -99,23 +107,24 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				if areaName == "" {
 					return errors.New("explore error: No location provided.\nUse map command to see accepted areas")
 				}
-				fmt.Println("Exploring", areaName, "...")
-				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v-area/", areaName)
+
+				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", areaName)
 				var areaData AreaData
 				d, err := checkAndCall(cache, endpoint, &areaData)
 				if err != nil {
 					return err
 				}
+				fmt.Println("Exploring", areaName, "...")
 				data, ok := d.(AreaData)
 				if !ok {
 					return errors.New("error here")
 				}
 				data.Explored = true
 				fmt.Println("Found Pokemon: ")
-				if data.Explored {
-					for _, pokemon := range data.GetViableEncounters() {
-						fmt.Println("-", pokemon.Name)
-					}
+
+				for _, pokemon := range data.GetViableEncounters() {
+					fmt.Println("-", pokemon.Name)
+
 				}
 				return nil
 			},
@@ -139,10 +148,8 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				rand.Seed(time.Now().UnixMilli())
 				formattedName := color.HiCyanString(strings.Title(pokemonName))
 				if rand.Intn(1000) >= 0 {
-					data, ok := d.(PokemonData)
-					if !ok {
-						return errors.New("error here")
-					}
+					data, _ := d.(PokemonData)
+
 					data.Nickname = data.Name
 					fmt.Println("You caught", formattedName+"!\nGive", formattedName, "a nickname? (y/n)")
 					scanner := bufio.NewScanner(os.Stdin)
@@ -195,19 +202,9 @@ func call(endpoint string) ([]byte, error) {
 		return nil, err
 	}
 	if len(response.Body) < 9 {
-		return nil, errors.New("not found: Check if you've typed in the name correctly")
+		return nil, errors.New("404 Not Found: Check if you've typed in the name correctly")
 	}
 	return response.Body, nil
-}
-
-func commandHelp() error {
-	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
-	// placeholders, pokeapi.cache and pokedex{} not used at all
-	for _, cmd := range getCommands(pokeapi.Cache{}, Pokedex{}) {
-		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
-	}
-	fmt.Println()
-	return nil
 }
 func checkAndCall(cache pokeapi.Cache, endpoint string, dataStruct DataTypes) (DataTypes, error) {
 	data, found := cache.Get(endpoint)
@@ -221,4 +218,13 @@ func checkAndCall(cache pokeapi.Cache, endpoint string, dataStruct DataTypes) (D
 	json.Unmarshal(bytes, &dataStruct)
 	cache.Add(endpoint, dataStruct)
 	return dataStruct, nil
+}
+func commandHelp() error {
+	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
+	// placeholders, pokeapi.cache and pokedex{} not used at all
+	for _, cmd := range getCommands(pokeapi.Cache{}, Pokedex{}) {
+		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
+	}
+	fmt.Println()
+	return nil
 }

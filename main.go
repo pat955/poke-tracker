@@ -31,12 +31,10 @@ func main() {
 
 		if scanner.Scan() {
 			line := strings.Split(scanner.Text(), " ")
-			fmt.Println(line)
 			cmd = line[0]
 			if len(line) != 1 {
 				args = line[1]
 			}
-			// fmt.Printf("Input was: %q\n", line)
 		}
 		if cmd == "" {
 			continue

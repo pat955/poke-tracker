@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type DataTypes interface {
@@ -68,6 +70,7 @@ type AreaData struct {
 
 func (a AreaData) GetViableEncounters() []Pokemon {
 	viableEncounter := make([]Pokemon, 0)
+	fmt.Println(a.PokemonEncounters)
 	for _, enc := range a.PokemonEncounters {
 		if !enc.Pokemon.Caught {
 			viableEncounter = append(viableEncounter, enc.Pokemon)
@@ -76,6 +79,9 @@ func (a AreaData) GetViableEncounters() []Pokemon {
 	return viableEncounter
 }
 func (a AreaData) String() string {
+	for _, pokemon := range a.PokemonEncounters {
+		fmt.Println("-", pokemon.Pokemon.Name)
+	}
 	return ""
 }
 func (a AreaData) GetURL() string {
@@ -113,7 +119,11 @@ type LocationData struct {
 }
 
 func (l LocationData) String() string {
-	return fmt.Sprint(l.ID, " "+l.Name+" ", l.Region.Name+" ")
+	fmt.Println(color.CyanString("------" + l.Name + "------"))
+	for _, area := range l.Areas {
+		fmt.Println("-", area.Name)
+	}
+	return ""
 }
 func (l LocationData) GetURL() string {
 	return l.Region.URL
@@ -412,16 +422,3 @@ func (p PokemonData) PrintTypes() {
 		fmt.Println(strings.Title(typ.Type.Name))
 	}
 }
-
-// type Encounter struct {
-// 	Name   string
-// 	Caught bool
-// }
-
-// func NewEncounter(name string) Encounter {
-// 	e := Encounter{
-// 		Name:   name,
-// 		Caught: true,
-// 	}
-// 	return e
-// }

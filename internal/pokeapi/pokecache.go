@@ -51,16 +51,13 @@ func NewCache(interval time.Duration) Cache {
 	c := Cache{&sync.RWMutex{}, make(map[string]CacheEntry)}
 	go c.ReapLoop(interval)
 	return c
-
 }
-
 func (c *Cache) ReapLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	for range ticker.C {
 		c.reap(time.Now(), interval)
 	}
 }
-
 func (c *Cache) reap(now time.Time, last time.Duration) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
