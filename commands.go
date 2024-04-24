@@ -65,7 +65,6 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 					if err != nil {
 						return err
 					}
-
 					data.String()
 					fmt.Println()
 					currentLocationID++
@@ -95,7 +94,6 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 					}
 					data.String()
 					fmt.Println()
-
 				}
 				return nil
 			},
@@ -115,7 +113,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 					return err
 				}
 				fmt.Println("Exploring", areaName, "...")
-				data, ok := d.(AreaData)
+				data, ok := d.(*AreaData)
 				if !ok {
 					return errors.New("error here")
 				}
@@ -147,9 +145,9 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				}
 				rand.Seed(time.Now().UnixMilli())
 				formattedName := color.HiCyanString(strings.Title(pokemonName))
-				if rand.Intn(1000) >= 0 {
-					data, _ := d.(PokemonData)
 
+				if rand.Intn(1000) >= 0 {
+					data, _ := d.(*PokemonData)
 					data.Nickname = data.Name
 					fmt.Println("You caught", formattedName+"!\nGive", formattedName, "a nickname? (y/n)")
 					scanner := bufio.NewScanner(os.Stdin)
