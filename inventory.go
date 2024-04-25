@@ -19,8 +19,8 @@ type Pokedex struct {
 func newPokedex() Pokedex {
 	p := Pokedex{}
 	p.CurrentPokemon = make(map[string]PokemonData, 6)
-	p.Storage = make(map[string]PokemonData, 100)
-	p.Pokedex = make(map[string]PokemonData, 100)
+	p.Storage = make(map[string]PokemonData, 0)
+	p.Pokedex = make(map[string]PokemonData, 0)
 	return p
 }
 func (dex Pokedex) Inspect(pokemon_name string) error {
@@ -60,7 +60,6 @@ func (dex Pokedex) Add(poke *PokemonData) {
 		dex.CurrentPokemon[poke.Name] = *poke
 	}
 	dex.Pokedex[poke.Name] = *poke
-	fmt.Println(dex.CurrentPokemon)
 }
 
 type ItemInventory struct {

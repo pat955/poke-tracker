@@ -23,17 +23,13 @@ type cliCommand struct {
 	Name    string
 	Desc    string
 	Command func(arguments string) error
-	Config  *Config
-}
-
-type Config struct {
-	CallName string
-	PrevURL  string
 }
 
 // Get the names of all commands, execute with x.command(arg, arg, arg)
 func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
-	// 1
+	// 1 is the starting id in the api instead of 0.
+	var currentArea string
+	fmt.Println(currentArea)
 	currentLocationID := 1
 	return map[string]cliCommand{
 		"help": {
@@ -48,7 +44,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 			Name: "Exit",
 			Desc: "Exit command line",
 			Command: func(_ string) error {
-				fmt.Println("Exiting...")
+				fmt.Println("See you next time!\nExiting...")
 				os.Exit(0)
 				return nil
 			},
@@ -105,7 +101,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				if areaName == "" {
 					return errors.New("explore error: No location provided.\nUse map command to see accepted areas")
 				}
-
+				currentArea = areaName
 				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", areaName)
 				var areaData AreaData
 				d, err := checkAndCall(cache, endpoint, &areaData)
@@ -115,13 +111,16 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				fmt.Println("Exploring", areaName, "...")
 				data, ok := d.(*AreaData)
 				if !ok {
-					return errors.New("error here")
+					return errors.New("conversion error")
 				}
 				data.Explored = true
 				fmt.Println("Found Pokemon: ")
 
-				for _, pokemon := range data.GetViableEncounters() {
-					fmt.Println("-", pokemon.Name)
+				for _, pokemon := range data.GetEncounters() {
+					pokemondata, found := pokedex.Pokedex[pokemon.Name]
+					if !found || pokemondata.AreaCaughtIn != areaName {
+						fmt.Println("-", pokemon.Name)
+					}
 
 				}
 				return nil
@@ -149,6 +148,8 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				if rand.Intn(1000) >= 0 {
 					data, _ := d.(*PokemonData)
 					data.Nickname = data.Name
+					data.AreaCaughtIn = currentArea
+
 					fmt.Println("You caught", formattedName+"!\nGive", formattedName, "a nickname? (y/n)")
 					scanner := bufio.NewScanner(os.Stdin)
 					if scanner.Scan() {

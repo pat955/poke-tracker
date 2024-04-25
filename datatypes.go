@@ -7,12 +7,6 @@ import (
 	"github.com/fatih/color"
 )
 
-type DataTypes interface {
-	String() string
-	GetID() int
-	GetURL() string
-	PrintInfo()
-}
 type AreaData struct {
 	Explored             bool
 	CurrentEncounters    map[string]Pokemon
@@ -47,6 +41,7 @@ type AreaData struct {
 		Pokemon struct {
 			Name   string `json:"name"`
 			URL    string `json:"url"`
+			Area   string
 			Caught bool
 		} `json:"pokemon"`
 		VersionDetails []struct {
@@ -69,10 +64,10 @@ type AreaData struct {
 	} `json:"pokemon_encounters"`
 }
 
-func (a AreaData) GetViableEncounters() []Pokemon {
+func (a AreaData) GetEncounters() []Pokemon {
 	viableEncounter := make([]Pokemon, 0)
-	fmt.Println(a.PokemonEncounters)
 	for _, enc := range a.PokemonEncounters {
+		enc.Pokemon.Area = a.Name
 		if !enc.Pokemon.Caught {
 			viableEncounter = append(viableEncounter, enc.Pokemon)
 		}
@@ -83,12 +78,6 @@ func (a AreaData) PrintInfo() {
 	for _, pokemon := range a.PokemonEncounters {
 		fmt.Println("-", pokemon.Pokemon.Name)
 	}
-}
-func (a AreaData) String() string {
-	for _, pokemon := range a.PokemonEncounters {
-		fmt.Println("-", pokemon.Pokemon.Name)
-	}
-	return ""
 }
 func (a AreaData) GetURL() string {
 	return a.Location.URL
@@ -130,13 +119,6 @@ func (l LocationData) PrintInfo() {
 		fmt.Println("-", area.Name)
 	}
 }
-func (l LocationData) String() string {
-	fmt.Println(color.CyanString("------" + l.Name + "------"))
-	for _, area := range l.Areas {
-		fmt.Println("-", area.Name)
-	}
-	return ""
-}
 func (l LocationData) GetURL() string {
 	return l.Region.URL
 }
@@ -147,12 +129,14 @@ func (l LocationData) GetID() int {
 type Pokemon struct {
 	Name   string `json:"name"`
 	URL    string `json:"url"`
+	Area   string
 	Caught bool
 }
 
 type PokemonData struct {
-	Nickname  string
-	Abilities []struct {
+	Nickname     string
+	AreaCaughtIn string
+	Abilities    []struct {
 		Ability struct {
 			Name string `json:"name"`
 			URL  string `json:"url"`
@@ -413,9 +397,7 @@ type PokemonData struct {
 func (p PokemonData) PrintInfo() {
 	fmt.Println(p.Name)
 }
-func (p PokemonData) String() string {
-	return p.Name
-}
+
 func (p PokemonData) GetID() int {
 	return p.ID
 }
