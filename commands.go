@@ -99,7 +99,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 				}
 				currentArea = areaName
 				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", areaName)
-				data, err := dataTypeToAreaData(cache, endpoint)
+				data, err := dataToAreaData(cache, endpoint)
 				if err != nil {
 					return err
 				}

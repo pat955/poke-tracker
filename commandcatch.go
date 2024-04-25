@@ -17,7 +17,7 @@ func commandCatch(cache pokeapi.Cache, pokedex Pokedex, currentArea, pokemonName
 	if pokemonName == "" {
 		return errors.New("catch error: No pokemon name provided")
 	}
-	areaData, err := dataTypeToAreaData(cache, fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", currentArea))
+	areaData, err := dataToAreaData(cache, fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", currentArea))
 	if err != nil {
 		return err
 	}
@@ -27,12 +27,11 @@ func commandCatch(cache pokeapi.Cache, pokedex Pokedex, currentArea, pokemonName
 	// check if already caught
 	// several rounds of *click, *click*, italic *click* when caught with a timer to create suspense
 	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", strings.ToLower(pokemonName))
-	var pokeDataHolder PokemonData
-	d, err := checkAndCall(cache, endpoint, &pokeDataHolder)
+
+	pokeData, err := dataToPokemonData(cache, endpoint)
 	if err != nil {
 		return err
 	}
-	pokeData, _ := d.(*PokemonData)
 	pokeData.Nickname = pokeData.Name
 	if pokeData.AreaCaughtIn != "" {
 		return errors.New("catch error: This pokemon already caught, escaped or killed in this area. Come back later")
@@ -89,7 +88,7 @@ func capture() bool {
 
 			if rand.Intn(1000) >= 200 {
 				boldPrint(color.HiBlackString("*click*"))
-				time.Sleep(1 * time.Second)
+				time.Sleep(1000 * time.Millisecond)
 
 				return true
 			}
