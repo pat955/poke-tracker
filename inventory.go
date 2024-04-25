@@ -52,6 +52,16 @@ func (dex Pokedex) PrintOutPokedex() {
 		fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
 	}
 }
+func (dex Pokedex) PrintOutCurrentPokemon() {
+	fmt.Println("-----HELD POKEMON-----")
+	for _, pokemon := range dex.CurrentPokemon {
+		if pokemon.Nickname != pokemon.Name {
+			fmt.Println("-", color.HiCyanString(pokemon.Nickname), "("+color.MagentaString(strings.Title(pokemon.Name))+")")
+			continue
+		}
+		fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
+	}
+}
 func (dex Pokedex) Add(poke *PokemonData) {
 	if len(dex.CurrentPokemon) >= 6 {
 		dex.Storage[poke.Name] = *poke

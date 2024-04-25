@@ -2,7 +2,6 @@ package main
 
 // TODO
 // Add callnames, []string
-// find out why id 21 is empty
 
 import (
 	"bufio"
@@ -120,13 +119,16 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 					pokemondata, found := pokedex.Pokedex[pokemon.Name]
 					if !found || pokemondata.AreaCaughtIn != areaName {
 						fmt.Println("-", pokemon.Name)
+						continue
 					}
+					fmt.Println(color.BlackString("- " + pokemon.Name))
 
 				}
 				return nil
 			},
 		},
 		"catch": {
+			// Add area checking so you cannot catch mewtwo in region 1...
 			Name: "Catch Pokemon",
 			Desc: "Catch pokemon using this command after exploring area",
 			Command: func(pokemonName string) error {
@@ -146,9 +148,9 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				formattedName := color.HiCyanString(strings.Title(pokemonName))
 
 				if rand.Intn(1000) >= 0 {
-					data, _ := d.(*PokemonData)
-					data.Nickname = data.Name
-					data.AreaCaughtIn = currentArea
+					pokeData, _ := d.(*PokemonData)
+					pokeData.Nickname = pokeData.Name
+					pokeData.AreaCaughtIn = currentArea
 
 					fmt.Println("You caught", formattedName+"!\nGive", formattedName, "a nickname? (y/n)")
 					scanner := bufio.NewScanner(os.Stdin)
@@ -156,12 +158,13 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 						answer := scanner.Text()
 						if answer == "y" {
 							if scanner.Scan() {
-								data.Nickname = scanner.Text()
-								fmt.Println("Nickname", color.HiMagentaString(data.Nickname), "given to", formattedName)
+								pokeData.Nickname = scanner.Text()
+								fmt.Println("Nickname", color.HiMagentaString(pokeData.Nickname), "given to", formattedName)
 							}
 						}
 					}
-					pokedex.Add(data)
+					pokedex.Add(pokeData)
+					pokedex.PrintOutCurrentPokemon()
 				} else {
 					fmt.Println("Failed to catch", formattedName+"!")
 				}
@@ -173,7 +176,6 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 			Desc: "Inspect a pokemon or an item",
 			Command: func(pokemonName string) error {
 				return pokedex.Inspect(pokemonName)
-
 			},
 		},
 		"pokedex": {
