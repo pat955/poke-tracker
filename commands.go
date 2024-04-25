@@ -1,7 +1,6 @@
 package main
 
 // TODO
-// Add callnames, []string
 // start command?
 
 import (
@@ -29,7 +28,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 	currentLocationID := 1
 	return map[string]cliCommand{
 		"help": {
-			Name: "Help",
+			Name: "help",
 			Desc: "Get the description of all available commands",
 			Command: func(_ string) error {
 				commandHelp()
@@ -37,7 +36,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			},
 		},
 		"exit": {
-			Name: "Exit",
+			Name: "exit",
 			Desc: "Exit command line",
 			Command: func(_ string) error {
 				fmt.Println("See you next time!\nExiting...")
@@ -46,8 +45,8 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			},
 		},
 		"map": {
-			Name: "Map",
-			Desc: "Get the next 2 location and their areas. The cyan name is the location. Explore the areas. eks: >>> explore eterna-city-west-gate",
+			Name: "map",
+			Desc: "Get the next 2 location and their areas. The cyan name is the location.\nExplore the areas. eks: >>> explore eterna-city-west-gate",
 			Command: func(_ string) error {
 				boldPrint(color.GreenString("EXPLORABLE AREAS:"))
 				for i := 0; i < 2; i++ {
@@ -65,8 +64,8 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			},
 		},
 		"mapb": {
-			Name: "Map Back",
-			Desc: "Get the previous 2 locations",
+			Name: "mapb",
+			Desc: "Map Back. Get the previous 2 locations",
 			Command: func(_ string) error {
 				if currentLocationID <= 3 {
 					return errors.New("location error: You're at the start, unable to go back further. Type map to go forward")
@@ -91,8 +90,8 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			},
 		},
 		"explore": {
-			Name: "Explore Area",
-			Desc: "explore current area, called with: >>> explore <areaName>",
+			Name: "explore <area_name>",
+			Desc: "Explore current area, called with: >>> explore <areaName>",
 			Command: func(areaName string) error {
 				if areaName == "" {
 					return errors.New("explore error: No location provided.\nUse map command to see accepted areas")
@@ -121,21 +120,21 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 		},
 		"catch": {
 			// Add area checking so you cannot catch mewtwo in region 1...
-			Name: "Catch Pokemon",
+			Name: "catch <pokemon_name>",
 			Desc: "Catch pokemon using this command after exploring area",
 			Command: func(pokemonName string) error {
 				return commandCatch(cache, pokedex, currentArea, pokemonName)
 			},
 		},
 		"inspect": {
-			Name: "Inspect",
-			Desc: "Inspect a pokemon or an item",
+			Name: "inspect <pokemon_name>",
+			Desc: "Inspect a pokemon in your inventory",
 			Command: func(pokemonName string) error {
 				return pokedex.Inspect(pokemonName)
 			},
 		},
 		"pokedex": {
-			Name: "Pokedex",
+			Name: "pokedex",
 			Desc: "See all the pokemon you've caught so far",
 			Command: func(_ string) error {
 				pokedex.PrintOutMyPokemon()
@@ -143,15 +142,15 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			},
 		},
 		"cache": {
-			Name: "Check Cache",
-			Desc: "Check Cache for debugging",
+			Name: "cache",
+			Desc: "Check Cache for debugging reasons",
 			Command: func(_ string) error {
 				cache.Print()
 				return nil
 			},
 		},
 		"inventory": {
-			Name: "Check Inventory",
+			Name: "inventory",
 			Desc: "Check inventory and use items",
 			Command: func(_ string) error {
 				inventory.PrintOutItems()
@@ -159,7 +158,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			},
 		},
 		"buy": {
-			Name: "Buy Items",
+			Name: "buy",
 			Desc: "Buy items like pokeballs, moves and more",
 			Command: func(_ string) error {
 				return buyItems(cache, inventory)
@@ -169,10 +168,15 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 }
 
 func commandHelp() error {
-	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
+	boldRed := color.New(color.Bold, color.FgRed).SprintFunc()
+	bold := color.New(color.Bold).SprintFunc()
+
+	fmt.Println(bold("Welcome to my PokeCLI!\n"))
+	fmt.Println(("------------Available Commands------------"))
 	// placeholders, pokeapi.cache and pokedex{} not used at all
+	// add order
 	for _, cmd := range getCommands(pokeapi.Cache{}, Pokedex{}, ItemInventory{}) {
-		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
+		fmt.Printf("%s  %s\n", boldRed(cmd.Name), cmd.Desc)
 	}
 	fmt.Println()
 	return nil
