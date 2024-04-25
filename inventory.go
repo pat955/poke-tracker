@@ -84,8 +84,8 @@ func (inven *ItemInventory) Add(itemName string, item Item) {
 }
 
 func (inven *ItemInventory) PrintOutItems() {
-	for i, item := range inven.Items {
-		fmt.Println(i, item.Data.Name+": "+item.Data.Category.Name)
+	for _, item := range inven.Items {
+		fmt.Println(item.Data.Name+" amount:", item.Amount)
 	}
 }
 

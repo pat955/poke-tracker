@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/fatih/color"
 	"github.com/go-zoox/fetch"
@@ -177,19 +178,27 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 					if !found {
 						return errors.New("item not availabl, check spelling")
 					}
-					var itemData ItemData
-					d, err := checkAndCall(cache, fmt.Sprintf("https://pokeapi.co/api/v2/item/%v/", itemName), &itemData)
-					if err != nil {
-						return err
+					fmt.Println("How many? (0-/get max amount) ")
+					if scanner.Scan() {
+						amountInput := scanner.Text()
+						amountInt, err := strconv.Atoi(amountInput)
+						if err != nil {
+							return err
+							//errors.New("unable to convert", amountInput, "to integer")
+						}
+						var itemData ItemData
+						d, err := checkAndCall(cache, fmt.Sprintf("https://pokeapi.co/api/v2/item/%v/", itemName), &itemData)
+						if err != nil {
+							return err
+						}
+						fmt.Println("Adding item to inventory...")
+						data, ok := d.(*ItemData)
+						if !ok {
+							return errors.New("conversion error: converting datatype to AreaData not working")
+						}
+						inventory.Add(itemName, Item{Amount: amountInt, Data: data})
 					}
-					fmt.Println("Adding item to inventory...")
-					data, ok := d.(*ItemData)
-					if !ok {
-						return errors.New("conversion error: converting datatype to AreaData not working")
-					}
-					inventory.Add(itemName, Item{Data: data})
 				}
-
 				fmt.Println("Your Inventory Now:")
 				inventory.PrintOutItems()
 				return nil
