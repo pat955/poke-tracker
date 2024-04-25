@@ -65,7 +65,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 					if err != nil {
 						return err
 					}
-					data.String()
+					data.PrintInfo()
 					fmt.Println()
 					currentLocationID++
 				}
@@ -92,7 +92,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 					if err != nil {
 						return err
 					}
-					data.String()
+					data.PrintInfo()
 					fmt.Println()
 				}
 				return nil
@@ -204,7 +204,7 @@ func call(endpoint string) ([]byte, error) {
 	}
 	return response.Body, nil
 }
-func checkAndCall(cache pokeapi.Cache, endpoint string, dataStruct DataTypes) (DataTypes, error) {
+func checkAndCall(cache pokeapi.Cache, endpoint string, dataStruct pokeapi.DataTypes) (pokeapi.DataTypes, error) {
 	data, found := cache.Get(endpoint)
 	if found {
 		return data, nil

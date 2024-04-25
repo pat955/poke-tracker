@@ -9,9 +9,9 @@ import (
 )
 
 type DataTypes interface {
-	String() string
 	GetID() int
 	GetURL() string
+	PrintInfo()
 }
 
 type Cache struct {
@@ -25,8 +25,8 @@ type CacheEntry struct {
 }
 
 func (c *Cache) Print() {
-	for i, entry := range c.entries {
-		fmt.Println("Nr."+i, entry.dataStruct.String())
+	for _, entry := range c.entries {
+		entry.dataStruct.PrintInfo()
 	}
 }
 func (c *Cache) Add(keyID string, dataType DataTypes) {

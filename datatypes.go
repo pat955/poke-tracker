@@ -11,6 +11,7 @@ type DataTypes interface {
 	String() string
 	GetID() int
 	GetURL() string
+	PrintInfo()
 }
 type AreaData struct {
 	Explored             bool
@@ -78,6 +79,11 @@ func (a AreaData) GetViableEncounters() []Pokemon {
 	}
 	return viableEncounter
 }
+func (a AreaData) PrintInfo() {
+	for _, pokemon := range a.PokemonEncounters {
+		fmt.Println("-", pokemon.Pokemon.Name)
+	}
+}
 func (a AreaData) String() string {
 	for _, pokemon := range a.PokemonEncounters {
 		fmt.Println("-", pokemon.Pokemon.Name)
@@ -118,6 +124,12 @@ type LocationData struct {
 	} `json:"areas"`
 }
 
+func (l LocationData) PrintInfo() {
+	fmt.Println(color.CyanString("------" + l.Name + "------"))
+	for _, area := range l.Areas {
+		fmt.Println("-", area.Name)
+	}
+}
 func (l LocationData) String() string {
 	fmt.Println(color.CyanString("------" + l.Name + "------"))
 	for _, area := range l.Areas {
@@ -398,6 +410,9 @@ type PokemonData struct {
 	Weight int `json:"weight"`
 }
 
+func (p PokemonData) PrintInfo() {
+	fmt.Println(p.Name)
+}
 func (p PokemonData) String() string {
 	return p.Name
 }
