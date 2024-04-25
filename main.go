@@ -26,7 +26,7 @@ func main() {
 	commands := getCommands(cache, pokeInventory, inventory)
 
 	for {
-		fmt.Print(color.HiGreenString("Pokedex >>> "))
+		fmt.Print(color.HiGreenString("PokeCLI >>> "))
 
 		var cmd, args string
 
