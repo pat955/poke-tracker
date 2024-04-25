@@ -168,6 +168,16 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 	}
 }
 
+func commandHelp() error {
+	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
+	// placeholders, pokeapi.cache and pokedex{} not used at all
+	for _, cmd := range getCommands(pokeapi.Cache{}, Pokedex{}, ItemInventory{}) {
+		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
+	}
+	fmt.Println()
+	return nil
+}
+
 func call(endpoint string) ([]byte, error) {
 	response, err := fetch.Get(endpoint)
 	if err != nil {
@@ -190,13 +200,4 @@ func checkAndCall(cache pokeapi.Cache, endpoint string, dataStruct pokeapi.DataT
 	json.Unmarshal(bytes, &dataStruct)
 	cache.Add(endpoint, dataStruct)
 	return dataStruct, nil
-}
-func commandHelp() error {
-	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
-	// placeholders, pokeapi.cache and pokedex{} not used at all
-	for _, cmd := range getCommands(pokeapi.Cache{}, Pokedex{}, ItemInventory{}) {
-		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
-	}
-	fmt.Println()
-	return nil
 }

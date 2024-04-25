@@ -1,7 +1,5 @@
 package pokeapi
 
-// TODO
-// Remove cache after 1-30mins
 import (
 	"fmt"
 	"sync"
