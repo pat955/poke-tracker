@@ -73,10 +73,28 @@ func (dex Pokedex) Add(poke *PokemonData) {
 }
 
 type ItemInventory struct {
-	Items []Item
+	Items map[string]Item
+}
+
+func NewItemInventory() ItemInventory {
+	return ItemInventory{Items: make(map[string]Item)}
+}
+func (inven *ItemInventory) Add(itemName string, item Item) {
+	inven.Items[itemName] = item
+}
+
+func (inven *ItemInventory) PrintOutItems() {
+	for i, item := range inven.Items {
+		fmt.Println(i, item.Data.Name+": "+item.Data.Category.Name)
+	}
 }
 
 type Item struct {
+	Amount int
+	Data   *ItemData
+}
+
+type ItemData struct {
 	Attributes []struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
@@ -131,12 +149,12 @@ type Item struct {
 	} `json:"sprites"`
 }
 
-func (i *Item) GetID() int {
+func (i *ItemData) GetID() int {
 	return i.ID
 }
-func (i *Item) GetURL() string {
+func (i *ItemData) GetURL() string {
 	return i.Category.URL
 }
-func (i *Item) PrintInfo() {
+func (i *ItemData) PrintInfo() {
 	fmt.Println("Nothing here, printing out item info")
 }

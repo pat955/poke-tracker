@@ -2,8 +2,10 @@ package main
 
 // TODO
 // Add callnames, []string
+// start command?
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,7 +23,7 @@ type cliCommand struct {
 }
 
 // Get the names of all commands, execute with x.command(arg, arg, arg)
-func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
+func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) map[string]cliCommand {
 	// 1 is the starting id in the api instead of 0.
 	var currentArea string
 	boldPrint := color.New(color.Bold).PrintlnFunc()
@@ -158,7 +160,38 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 			Name: "Check Inventory",
 			Desc: "Check inventory and use items",
 			Command: func(_ string) error {
-				cache.Print()
+				inventory.PrintOutItems()
+				return nil
+			},
+		},
+		"buy": {
+			Name: "Buy Items",
+			Desc: "Buy items like pokeballs, moves and more",
+			Command: func(_ string) error {
+				options := map[string]string{"1": "poke-ball", "2": "2"}
+				fmt.Println("You can buy:\n[1]Pokeballs\n[2]somethingelse")
+				scanner := bufio.NewScanner(os.Stdin)
+				if scanner.Scan() {
+					key := scanner.Text()
+					itemName, found := options[key]
+					if !found {
+						return errors.New("item not availabl, check spelling")
+					}
+					var itemData ItemData
+					d, err := checkAndCall(cache, fmt.Sprintf("https://pokeapi.co/api/v2/item/%v/", itemName), &itemData)
+					if err != nil {
+						return err
+					}
+					fmt.Println("Adding item to inventory...")
+					data, ok := d.(*ItemData)
+					if !ok {
+						return errors.New("conversion error: converting datatype to AreaData not working")
+					}
+					inventory.Add(itemName, Item{Data: data})
+				}
+
+				fmt.Println("Your Inventory Now:")
+				inventory.PrintOutItems()
 				return nil
 			},
 		},
@@ -191,7 +224,7 @@ func checkAndCall(cache pokeapi.Cache, endpoint string, dataStruct pokeapi.DataT
 func commandHelp() error {
 	fmt.Println("\nWelcome to the Pokedex!\nUsage: ")
 	// placeholders, pokeapi.cache and pokedex{} not used at all
-	for _, cmd := range getCommands(pokeapi.Cache{}, Pokedex{}) {
+	for _, cmd := range getCommands(pokeapi.Cache{}, Pokedex{}, ItemInventory{}) {
 		fmt.Printf("%s: %s\n", cmd.Name, cmd.Desc)
 	}
 	fmt.Println()
