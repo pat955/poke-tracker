@@ -64,6 +64,15 @@ type AreaData struct {
 	} `json:"pokemon_encounters"`
 }
 
+func (a *AreaData) CheckIfPokemonInArea(pokemonName string) bool {
+	for _, enc := range a.PokemonEncounters {
+		if enc.Pokemon.Name == pokemonName {
+			return true
+		}
+	}
+	return false
+}
+
 func (a AreaData) GetEncounters() []Pokemon {
 	viableEncounter := make([]Pokemon, 0)
 	for _, enc := range a.PokemonEncounters {

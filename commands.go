@@ -28,7 +28,7 @@ type cliCommand struct {
 func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 	// 1 is the starting id in the api instead of 0.
 	var currentArea string
-	fmt.Println(currentArea)
+	boldPrint := color.New(color.Bold).PrintlnFunc()
 	currentLocationID := 1
 	return map[string]cliCommand{
 		"help": {
@@ -50,10 +50,10 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 		},
 		"map": {
 			Name: "Map",
-			Desc: "Get the next 5 areas, the red name is the location. Explore the under areas. eks: >>> explore eterna-city-west-gate",
+			Desc: "Get the next 2 location and their areas. The cyan name is the location. Explore the areas. eks: >>> explore eterna-city-west-gate",
 			Command: func(_ string) error {
-				fmt.Println(color.GreenString("EXPLORABLE AREAS:"))
-				for i := 0; i < 5; i++ {
+				boldPrint(color.GreenString("EXPLORABLE AREAS:"))
+				for i := 0; i < 2; i++ {
 					endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location/%v", currentLocationID)
 					var locData LocationData
 					data, err := checkAndCall(cache, endpoint, &locData)
@@ -69,13 +69,13 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 		},
 		"mapb": {
 			Name: "Map Back",
-			Desc: "Get the previous 5 visited areas",
+			Desc: "Get the previous 2 locations",
 			Command: func(_ string) error {
-				if currentLocationID == 1 {
+				if currentLocationID <= 3 {
 					return errors.New("location error: You're at the start, unable to go back further. Type map to go forward")
 				}
-				currentLocationID -= 5
-				fmt.Println(color.GreenString("EXPLORABLE AREAS:"))
+				currentLocationID -= 2
+				boldPrint(color.GreenString("EXPLORABLE AREAS:"))
 
 				// print backwards instead of 10 9 8 like it does now, maybe...
 				for i := 0; i < 5; i++ {
@@ -110,7 +110,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				fmt.Println("Exploring", areaName, "...")
 				data, ok := d.(*AreaData)
 				if !ok {
-					return errors.New("conversion error")
+					return errors.New("conversion error: converting datatype to AreaData not working")
 				}
 				data.Explored = true
 				fmt.Println("Found Pokemon: ")
@@ -118,10 +118,10 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				for _, pokemon := range data.GetEncounters() {
 					pokemondata, found := pokedex.Pokedex[pokemon.Name]
 					if !found || pokemondata.AreaCaughtIn != areaName {
-						fmt.Println("-", pokemon.Name)
+						fmt.Println("- " + pokemon.Name)
 						continue
 					}
-					fmt.Println(color.BlackString("- " + pokemon.Name))
+					//fmt.Println(color.BlackString("- " + pokemon.Name))
 
 				}
 				return nil
@@ -135,23 +135,36 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex) map[string]cliCommand {
 				if pokemonName == "" {
 					return errors.New("catch error: No pokemon name provided.\nUse explore command to see pokemon in your area")
 				}
+				dataType, ok := cache.Get(fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", currentArea))
+				if !ok {
+					return errors.New("cache get error| Pokemon not found in your current area")
+				}
+				areaData, ok := dataType.(*AreaData)
+				if !ok {
+					return errors.New("conversion error| Pokemon not found in your current area")
+				}
+				if !areaData.CheckIfPokemonInArea(pokemonName) {
+					return errors.New("Pokemon not found in your current area")
+				}
 				// check if already caught
 				// several rounds of *click, *click*, italic *click* when caught with a timer to create suspense
 				fmt.Println("Attempting to catch", pokemonName, "...")
 				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", strings.ToLower(pokemonName))
-				var pokeData PokemonData
-				d, err := checkAndCall(cache, endpoint, &pokeData)
+				var pokeDataHolder PokemonData
+				d, err := checkAndCall(cache, endpoint, &pokeDataHolder)
 				if err != nil {
 					return err
+				}
+				pokeData, _ := d.(*PokemonData)
+				pokeData.Nickname = pokeData.Name
+				if pokeData.AreaCaughtIn != "" {
+					return errors.New("catch error: This pokemon already caught, escaped or killed in this area. Come back later")
 				}
 				rand.Seed(time.Now().UnixMilli())
 				formattedName := color.HiCyanString(strings.Title(pokemonName))
 
-				if rand.Intn(1000) >= 0 {
-					pokeData, _ := d.(*PokemonData)
-					pokeData.Nickname = pokeData.Name
+				if rand.Intn(1000) >= 400 {
 					pokeData.AreaCaughtIn = currentArea
-
 					fmt.Println("You caught", formattedName+"!\nGive", formattedName, "a nickname? (y/n)")
 					scanner := bufio.NewScanner(os.Stdin)
 					if scanner.Scan() {
