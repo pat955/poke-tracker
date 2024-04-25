@@ -3,6 +3,7 @@ package main
 // TODO
 // Maybe replace nickname= "" with nickname = name
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -78,6 +79,16 @@ type ItemInventory struct {
 
 func NewItemInventory() ItemInventory {
 	return ItemInventory{Items: make(map[string]Item)}
+}
+func (inven *ItemInventory) AddStarterItems() error {
+	var itemdata ItemData
+	bytes, err := call("https://pokeapi.co/api/v2/item/poke-ball/") // poke-ball
+	if err != nil {
+		return err
+	}
+	json.Unmarshal(bytes, &itemdata)
+	inven.Add(itemdata.Name, Item{Amount: 5, Data: &itemdata})
+	return nil
 }
 func (inven *ItemInventory) Add(itemName string, item Item) {
 	inven.Items[itemName] = item
