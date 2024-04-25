@@ -21,6 +21,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	pokeInventory := newPokedex()
 	inventory := NewItemInventory()
+	inventory.AddStarterItems()
 
 	cache := pokeapi.NewCache(30 * time.Minute)
 	commands := getCommands(cache, pokeInventory, inventory)

@@ -69,7 +69,6 @@ func catchLoop(pokeData *PokemonData, pokedex Pokedex, currentArea, name string)
 			if answer == "y" {
 				catchLoop(pokeData, pokedex, currentArea, name)
 			}
-
 		}
 	}
 }
