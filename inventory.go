@@ -18,9 +18,9 @@ type Pokedex struct {
 
 func newPokedex() Pokedex {
 	p := Pokedex{}
-	p.CurrentPokemon = make(map[string]PokemonData, 0)
-	p.Storage = make(map[string]PokemonData, 0)
-	p.Pokedex = make(map[string]PokemonData, 0)
+	p.CurrentPokemon = make(map[string]PokemonData, 6)
+	p.Storage = make(map[string]PokemonData, 100)
+	p.Pokedex = make(map[string]PokemonData, 100)
 	return p
 }
 func (dex Pokedex) Inspect(pokemon_name string) error {
@@ -52,14 +52,15 @@ func (dex Pokedex) PrintOutPokedex() {
 		fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
 	}
 }
-func (dex Pokedex) Add(poke PokemonData) {
+func (dex Pokedex) Add(poke *PokemonData) {
 	if len(dex.CurrentPokemon) >= 6 {
-		dex.Storage[poke.Name] = poke
+		dex.Storage[poke.Name] = *poke
 		fmt.Println("Put", poke.Nickname, "in storage")
 	} else {
-		dex.CurrentPokemon[poke.Name] = poke
+		dex.CurrentPokemon[poke.Name] = *poke
 	}
-	dex.Pokedex[poke.Name] = poke
+	dex.Pokedex[poke.Name] = *poke
+	fmt.Println(dex.CurrentPokemon)
 }
 
 type ItemInventory struct {
