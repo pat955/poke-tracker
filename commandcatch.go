@@ -17,17 +17,10 @@ func commandCatch(cache pokeapi.Cache, pokedex Pokedex, currentArea, pokemonName
 	if pokemonName == "" {
 		return errors.New("catch error: No pokemon name provided")
 	}
-
-	dataType, ok := cache.Get(fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", currentArea))
-	if !ok {
-		return errors.New("cache get error| Pokemon not found in your current area")
+	areaData, err := dataTypeToAreaData(cache, fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", currentArea))
+	if err != nil {
+		return err
 	}
-
-	areaData, ok := dataType.(*AreaData)
-	if !ok {
-		return errors.New("conversion error| Pokemon not found in your current area")
-	}
-
 	if !areaData.CheckIfPokemonInArea(pokemonName) {
 		return errors.New("Pokemon not found in your current area")
 	}
@@ -94,7 +87,7 @@ func capture() bool {
 			boldPrint(color.HiBlackString("*click*"))
 			time.Sleep(1 * time.Second)
 
-			if rand.Intn(1000) >= 300 {
+			if rand.Intn(1000) >= 200 {
 				boldPrint(color.HiBlackString("*click*"))
 				time.Sleep(1 * time.Second)
 

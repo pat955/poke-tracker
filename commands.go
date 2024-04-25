@@ -99,17 +99,12 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 				}
 				currentArea = areaName
 				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", areaName)
-				var areaData AreaData
-				d, err := checkAndCall(cache, endpoint, &areaData)
+				data, err := dataTypeToAreaData(cache, endpoint)
 				if err != nil {
 					return err
 				}
-				fmt.Println("Exploring", areaName, "...")
-				data, ok := d.(*AreaData)
-				if !ok {
-					return errors.New("conversion error: converting datatype to AreaData not working")
-				}
 				data.Explored = true
+				fmt.Println("Exploring", areaName, "...")
 				fmt.Println("Found Pokemon: ")
 				// add random chance so there are fewer pokemon
 				for _, pokemon := range data.GetEncounters() {
