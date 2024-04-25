@@ -73,10 +73,88 @@ func (dex Pokedex) Add(poke *PokemonData) {
 }
 
 type ItemInventory struct {
-	Items []Item
+	Items map[string]Item
+}
+
+func NewItemInventory() ItemInventory {
+	return ItemInventory{Items: make(map[string]Item)}
+}
+func (inven *ItemInventory) Add(itemName string, item Item) {
+	inven.Items[itemName] = item
+}
+
+func (inven *ItemInventory) PrintOutItems() {
+	for _, item := range inven.Items {
+		fmt.Println(item.Data.Name+" amount:", item.Amount)
+	}
 }
 
 type Item struct {
-	Name string
-	Desc string
+	Amount int
+	Data   *ItemData
+}
+
+type ItemData struct {
+	Attributes []struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"attributes"`
+	BabyTriggerFor any `json:"baby_trigger_for"`
+	Category       struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"category"`
+	Cost          int `json:"cost"`
+	EffectEntries []struct {
+		Effect   string `json:"effect"`
+		Language struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"language"`
+		ShortEffect string `json:"short_effect"`
+	} `json:"effect_entries"`
+	FlavorTextEntries []struct {
+		Language struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"language"`
+		Text         string `json:"text"`
+		VersionGroup struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"version_group"`
+	} `json:"flavor_text_entries"`
+	FlingEffect any `json:"fling_effect"`
+	FlingPower  any `json:"fling_power"`
+	GameIndices []struct {
+		GameIndex  int `json:"game_index"`
+		Generation struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"generation"`
+	} `json:"game_indices"`
+	HeldByPokemon []any  `json:"held_by_pokemon"`
+	ID            int    `json:"id"`
+	Machines      []any  `json:"machines"`
+	Name          string `json:"name"`
+	Names         []struct {
+		Language struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"language"`
+		Name string `json:"name"`
+	} `json:"names"`
+	Sprites struct {
+		Default string `json:"default"`
+	} `json:"sprites"`
+}
+
+func (i *ItemData) GetID() int {
+	return i.ID
+}
+func (i *ItemData) GetURL() string {
+	return i.Category.URL
+}
+func (i *ItemData) PrintInfo() {
+	fmt.Println("Nothing here, printing out item info")
 }

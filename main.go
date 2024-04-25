@@ -20,9 +20,10 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	pokeInventory := newPokedex()
+	inventory := NewItemInventory()
 
 	cache := pokeapi.NewCache(30 * time.Minute)
-	commands := getCommands(cache, pokeInventory)
+	commands := getCommands(cache, pokeInventory, inventory)
 
 	for {
 		fmt.Print(color.HiGreenString("Pokedex >>> "))
