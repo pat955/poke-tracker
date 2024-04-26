@@ -6,6 +6,18 @@ import (
 	"github.com/pat955/pokedex/internal/pokeapi"
 )
 
+func dataToLocationData(cache pokeapi.Cache, endpoint string) (*LocationData, error) {
+	var locData LocationData
+	d, err := checkAndCall(cache, endpoint, &locData)
+	if err != nil {
+		return &LocationData{}, err
+	}
+	data, ok := d.(*LocationData)
+	if !ok {
+		return &LocationData{}, errors.New("conversion error: converting datatype to LocationData not working")
+	}
+	return data, nil
+}
 func dataToAreaData(cache pokeapi.Cache, endpoint string) (*AreaData, error) {
 	var areaData AreaData
 	d, err := checkAndCall(cache, endpoint, &areaData)

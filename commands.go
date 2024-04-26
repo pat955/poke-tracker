@@ -4,6 +4,7 @@ package main
 // start command?
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,6 +27,8 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 	var currentArea string
 	boldPrint := color.New(color.Bold).PrintlnFunc()
 	currentLocationID := 1
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println(scanner)
 	return map[string]cliCommand{
 		"help": {
 			Name: "help",
@@ -94,7 +97,7 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 			Desc: "Explore current area, called with: >>> explore <areaName>",
 			Command: func(areaName string) error {
 				if areaName == "" {
-					return errors.New("explore error: No location provided.\nUse map command to see accepted areas")
+					return errors.New("explore error: No area name provided.\nUse map command to see accepted areas")
 				}
 				currentArea = areaName
 				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%v/", areaName)
@@ -120,7 +123,22 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 		},
 		"explore-location": {
 			Name: "explore-location <locationName>",
-			Desc: "",
+			Desc: "explore an entire location rather than a small area",
+			Command: func(locationName string) error {
+				if locationName == "" {
+					return errors.New("explore error: No location provided.\nUse map command to see accepted locations")
+				}
+				fmt.Println("Starting to explore", locationName, "...")
+				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location/%v/", locationName)
+				locData, err := dataToLocationData(cache, endpoint)
+				if err != nil {
+					return err
+				}
+				for i, area := range locData.Areas {
+					fmt.Println(i, area)
+				}
+				return nil
+			},
 		},
 		"catch": {
 			// Add area checking so you cannot catch mewtwo in region 1...

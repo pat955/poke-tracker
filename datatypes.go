@@ -123,7 +123,7 @@ type LocationData struct {
 }
 
 func (l *LocationData) PrintInfo() {
-	fmt.Println(color.CyanString("------" + l.Name + "------"))
+	fmt.Println(color.CyanString("------ " + l.Name + " ------"))
 	for _, area := range l.Areas {
 		fmt.Println("-", area.Name)
 	}
