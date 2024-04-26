@@ -13,7 +13,7 @@ import (
 	"github.com/pat955/pokedex/internal/pokeapi"
 )
 
-func commandCatch(cache pokeapi.Cache, pokedex Pokedex, currentArea, pokemonName string) error {
+func commandCatch(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory, currentArea, pokemonName string) error {
 	if pokemonName == "" {
 		return errors.New("catch error: No pokemon name provided")
 	}
@@ -39,11 +39,17 @@ func commandCatch(cache pokeapi.Cache, pokedex Pokedex, currentArea, pokemonName
 	formattedName := color.HiCyanString(strings.Title(pokemonName))
 
 	fmt.Println("Attempting to catch", formattedName, "...")
-	catchLoop(pokeData, pokedex, currentArea, formattedName)
+	catchLoop(pokeData, pokedex, inventory, currentArea, formattedName)
 	return nil
 }
 
-func catchLoop(pokeData *PokemonData, pokedex Pokedex, currentArea, name string) {
+func catchLoop(pokeData *PokemonData, pokedex Pokedex, inventory ItemInventory, currentArea, name string) {
+	err := inventory.Items["poke-ball"].RemoveItem(5)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	// pokeball chances
 	// add countdown
 	scanner := bufio.NewScanner(os.Stdin)
@@ -67,7 +73,7 @@ func catchLoop(pokeData *PokemonData, pokedex Pokedex, currentArea, name string)
 		if scanner.Scan() {
 			answer := scanner.Text()
 			if answer == "y" {
-				catchLoop(pokeData, pokedex, currentArea, name)
+				catchLoop(pokeData, pokedex, inventory, currentArea, name)
 			}
 		}
 	}

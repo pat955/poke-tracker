@@ -18,6 +18,7 @@ import (
 )
 
 func main() {
+	fmt.Println("Loading...")
 	scanner := bufio.NewScanner(os.Stdin)
 	pokeInventory := newPokedex()
 	inventory := NewItemInventory()

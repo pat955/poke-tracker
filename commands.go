@@ -123,7 +123,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			Name: "catch <pokemon_name>",
 			Desc: "Catch pokemon using this command after exploring area",
 			Command: func(pokemonName string) error {
-				return commandCatch(cache, pokedex, currentArea, pokemonName)
+				return commandCatch(cache, pokedex, inventory, currentArea, pokemonName)
 			},
 		},
 		"inspect": {

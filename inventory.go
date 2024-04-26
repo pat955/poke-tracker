@@ -74,11 +74,11 @@ func (dex Pokedex) Add(poke *PokemonData) {
 }
 
 type ItemInventory struct {
-	Items map[string]Item
+	Items map[string]*Item
 }
 
 func NewItemInventory() ItemInventory {
-	return ItemInventory{Items: make(map[string]Item)}
+	return ItemInventory{Items: make(map[string]*Item)}
 }
 func (inven *ItemInventory) AddStarterItems() error {
 	var itemdata ItemData
@@ -91,7 +91,7 @@ func (inven *ItemInventory) AddStarterItems() error {
 	return nil
 }
 func (inven *ItemInventory) Add(itemName string, item Item) {
-	inven.Items[itemName] = item
+	inven.Items[itemName] = &item
 }
 
 func (inven *ItemInventory) PrintOutItems() {
@@ -103,6 +103,14 @@ func (inven *ItemInventory) PrintOutItems() {
 type Item struct {
 	Amount int
 	Data   *ItemData
+}
+
+func (i *Item) RemoveItem(amount int) error {
+	if i.Amount-amount < 0 {
+		return errors.New("No more of " + i.Data.Name)
+	}
+	i.Amount = i.Amount - amount
+	return nil
 }
 
 type ItemData struct {
