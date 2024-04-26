@@ -19,13 +19,12 @@ import (
 
 func main() {
 	fmt.Println("Loading...")
+	player := newProfile()
+	player.Inventory.AddStarterItems()
 	scanner := bufio.NewScanner(os.Stdin)
-	pokeInventory := newPokedex()
-	inventory := NewItemInventory()
-	inventory.AddStarterItems()
 
 	cache := pokeapi.NewCache(30 * time.Minute)
-	commands := getCommands(cache, pokeInventory, inventory)
+	commands := getCommands(cache, player)
 
 	for {
 		fmt.Print(color.HiGreenString("PokeCLI >>> "))

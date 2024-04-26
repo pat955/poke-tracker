@@ -105,12 +105,15 @@ type Item struct {
 	Data   *ItemData
 }
 
-func (i *Item) RemoveItem(amount int) error {
+func (i *Item) UseItem(amount int) error {
 	if i.Amount-amount < 0 {
 		return errors.New("No more of " + i.Data.Name)
 	}
-	i.Amount = i.Amount - amount
+	i.Amount -= amount
 	return nil
+}
+func (i *Item) AddItem(amount int) {
+	i.Amount += amount
 }
 
 type ItemData struct {

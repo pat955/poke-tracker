@@ -13,7 +13,7 @@ import (
 	"github.com/pat955/pokedex/internal/pokeapi"
 )
 
-func commandCatch(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory, currentArea, pokemonName string) error {
+func commandCatch(cache pokeapi.Cache, player Profile, currentArea, pokemonName string) error {
 	if pokemonName == "" {
 		return errors.New("catch error: No pokemon name provided")
 	}
@@ -39,12 +39,12 @@ func commandCatch(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory,
 	formattedName := color.HiCyanString(strings.Title(pokemonName))
 
 	fmt.Println("Attempting to catch", formattedName, "...")
-	catchLoop(pokeData, pokedex, inventory, currentArea, formattedName)
+	catchLoop(pokeData, player, currentArea, formattedName)
 	return nil
 }
 
-func catchLoop(pokeData *PokemonData, pokedex Pokedex, inventory ItemInventory, currentArea, name string) {
-	err := inventory.Items["poke-ball"].RemoveItem(5)
+func catchLoop(pokeData *PokemonData, player Profile, currentArea, name string) {
+	err := player.Inventory.Items["poke-ball"].UseItem(1)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -66,14 +66,14 @@ func catchLoop(pokeData *PokemonData, pokedex Pokedex, inventory ItemInventory, 
 				}
 			}
 		}
-		pokedex.Add(pokeData)
-		pokedex.PrintOutCurrentPokemon()
+		player.Pokedex.Add(pokeData)
+		player.Pokedex.PrintOutCurrentPokemon()
 	} else {
 		fmt.Println("Failed to catch", name+"!\nTry again? (y/n)")
 		if scanner.Scan() {
 			answer := scanner.Text()
 			if answer == "y" {
-				catchLoop(pokeData, pokedex, inventory, currentArea, name)
+				catchLoop(pokeData, player, currentArea, name)
 			}
 		}
 	}

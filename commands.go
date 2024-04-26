@@ -21,7 +21,7 @@ type cliCommand struct {
 }
 
 // Get the names of all commands, execute with x.command(arg, arg, arg)
-func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) map[string]cliCommand {
+func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 	// 1 is the starting id in the api instead of 0.
 	var currentArea string
 	boldPrint := color.New(color.Bold).PrintlnFunc()
@@ -107,7 +107,7 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 				fmt.Println("Found Pokemon: ")
 				// add random chance so there are fewer pokemon
 				for _, pokemon := range data.GetEncounters() {
-					pokemondata, found := pokedex.Pokedex[pokemon.Name]
+					pokemondata, found := player.Pokedex.Pokedex[pokemon.Name]
 					if !found || pokemondata.AreaCaughtIn != areaName {
 						fmt.Println("- " + pokemon.Name)
 						continue
@@ -123,21 +123,21 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			Name: "catch <pokemon_name>",
 			Desc: "Catch pokemon using this command after exploring area",
 			Command: func(pokemonName string) error {
-				return commandCatch(cache, pokedex, inventory, currentArea, pokemonName)
+				return commandCatch(cache, player, currentArea, pokemonName)
 			},
 		},
 		"inspect": {
 			Name: "inspect <pokemon_name>",
 			Desc: "Inspect a pokemon in your inventory",
 			Command: func(pokemonName string) error {
-				return pokedex.Inspect(pokemonName)
+				return player.Pokedex.Inspect(pokemonName)
 			},
 		},
 		"pokedex": {
 			Name: "pokedex",
 			Desc: "See all the pokemon you've caught so far",
 			Command: func(_ string) error {
-				pokedex.PrintOutMyPokemon()
+				player.Pokedex.PrintOutMyPokemon()
 				return nil
 			},
 		},
@@ -153,15 +153,15 @@ func getCommands(cache pokeapi.Cache, pokedex Pokedex, inventory ItemInventory) 
 			Name: "inventory",
 			Desc: "Check inventory and use items",
 			Command: func(_ string) error {
-				inventory.PrintOutItems()
+				player.Inventory.PrintOutItems()
 				return nil
 			},
 		},
-		"buy": {
-			Name: "buy",
+		"shop": {
+			Name: "shop",
 			Desc: "Buy items like pokeballs, moves and more",
 			Command: func(_ string) error {
-				return buyItems(cache, inventory)
+				return buyItems(cache, player.Inventory)
 			},
 		},
 	}
@@ -175,7 +175,7 @@ func commandHelp() error {
 	fmt.Println(("------------Available Commands------------"))
 	// placeholders, pokeapi.cache and pokedex{} not used at all
 	// add order
-	for _, cmd := range getCommands(pokeapi.Cache{}, Pokedex{}, ItemInventory{}) {
+	for _, cmd := range getCommands(pokeapi.Cache{}, Profile{}) {
 		fmt.Printf("%s  %s\n", boldRed(cmd.Name), cmd.Desc)
 	}
 	fmt.Println()
