@@ -118,6 +118,10 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 				return nil
 			},
 		},
+		"explore-location": {
+			Name: "explore-location <locationName>",
+			Desc: "",
+		},
 		"catch": {
 			// Add area checking so you cannot catch mewtwo in region 1...
 			Name: "catch <pokemon_name>",

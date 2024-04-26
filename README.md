@@ -4,10 +4,12 @@
 Psuedo-Pokemon game in a command-line REPL. It uses the [PokeApi](https://pokeapi.co/) 
 
 ### Functionality 
-* Explore regions
-* check pokemon in that region
-* Catch pokemon and name it
+* Explore areas
+* Check pokemon in that region
+* Catch pokemon and name them
 * Inspect your pokemon
+* Buy items and check inventory
+* 
 
 ### Plans
 * Documentation
@@ -15,6 +17,7 @@ Psuedo-Pokemon game in a command-line REPL. It uses the [PokeApi](https://pokeap
 * Select regions instead of starting from the start
 * Make a rarity and chance system
 * Battles, trainers
+* Ability to have more than one of one pokemon, i.e. two pikachu
 * ~~Items~~ (Done!)
 * ~~Nicknames~~ (Done!)
 * ~~Better Cache~~ (Done!)

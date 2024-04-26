@@ -25,17 +25,16 @@ func commandCatch(cache pokeapi.Cache, player Profile, currentArea, pokemonName 
 		return errors.New("Pokemon not found in your current area")
 	}
 	// check if already caught
-	// several rounds of *click, *click*, italic *click* when caught with a timer to create suspense
 	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", strings.ToLower(pokemonName))
 
 	pokeData, err := dataToPokemonData(cache, endpoint)
 	if err != nil {
 		return err
 	}
-	pokeData.Nickname = pokeData.Name
-	if pokeData.AreaCaughtIn != "" {
+	if pokeData.AreaCaughtIn == currentArea {
 		return errors.New("catch error: This pokemon already caught, escaped or killed in this area. Come back later")
 	}
+	pokeData.Nickname = pokeData.Name
 	formattedName := color.HiCyanString(strings.Title(pokemonName))
 
 	fmt.Println("Attempting to catch", formattedName, "...")
@@ -49,9 +48,7 @@ func catchLoop(pokeData *PokemonData, player Profile, currentArea, name string) 
 		fmt.Println(err)
 		return
 	}
-
 	// pokeball chances
-	// add countdown
 	scanner := bufio.NewScanner(os.Stdin)
 	caught := capture()
 	if caught {
@@ -81,25 +78,28 @@ func catchLoop(pokeData *PokemonData, player Profile, currentArea, name string) 
 func capture() bool {
 	boldPrint := color.New(color.Bold).PrintlnFunc()
 	rand.Seed(time.Now().UnixMilli())
-
-	if rand.Intn(1000) >= 100 {
-		time.Sleep(500 * time.Millisecond)
+	boldPrint(color.HiBlackString("*Poke ball thrown!*"))
+	time.Sleep(300 * time.Millisecond)
+	// 95% chance of success
+	if chanceCheck(0.95) {
 		boldPrint(color.HiBlackString("*click*"))
-		time.Sleep(1 * time.Second)
+		time.Sleep(800 * time.Millisecond)
 
-		if rand.Intn(1000) >= 100 {
+		if chanceCheck(0.90) {
 			boldPrint(color.HiBlackString("*click*"))
-			time.Sleep(1 * time.Second)
+			time.Sleep(800 * time.Millisecond)
 
-			if rand.Intn(1000) >= 200 {
+			if chanceCheck(0.85) {
 				boldPrint(color.HiBlackString("*click*"))
-				time.Sleep(1000 * time.Millisecond)
+				time.Sleep(800 * time.Millisecond)
 
 				return true
 			}
-			return false
 		}
-		return false
 	}
+
 	return false
+}
+func chanceCheck(precentage float64) bool {
+	return precentage > rand.Float64()
 }
