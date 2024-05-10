@@ -1,7 +1,7 @@
 # Pokedex CLI
 
 ### Description
-Psuedo-Pokemon game in a command-line REPL. It uses the [PokeApi](https://pokeapi.co/) 
+Psuedo-Pokemon game in a command-line REPL. It uses [PokeApi](https://pokeapi.co/) for info.
 
 ### Functionality 
 * Explore areas
