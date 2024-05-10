@@ -20,9 +20,10 @@ type cliCommand struct {
 	Command func(arguments string) error
 }
 
-// Get the names of all commands, execute with x.command(arg, arg, arg)
+// Get the names of all commands, execute with x.command(args)
+// If more than one argument is required then you can make the string easily separable "x, y, z"
 func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
-	// 1 is the starting id in the api instead of 0.
+	// The APIs starting id is 1, NOT 0.
 	var currentArea string
 	boldPrint := color.New(color.Bold).PrintlnFunc()
 	currentLocationID := 1
@@ -40,14 +41,14 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 			Name: "exit",
 			Desc: "Exit command line",
 			Command: func(_ string) error {
-				fmt.Println("See you next time!\nExiting...")
+				fmt.Println("Until next time!\nExiting...")
 				os.Exit(0)
 				return nil
 			},
 		},
 		"map": {
 			Name: "map",
-			Desc: "Get the next 2 location and their areas. The cyan name is the location.\nExplore the areas. eks: >>> explore eterna-city-west-gate",
+			Desc: "Get the next 2 location and their areas. The cyan name is the location.\n     Explore the areas. eks: >>> explore eterna-city-west-gate",
 			Command: func(_ string) error {
 				boldPrint(color.GreenString("EXPLORABLE AREAS:"))
 				for i := 0; i < 2; i++ {
@@ -128,12 +129,12 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 				}
 				fmt.Println("Starting to explore", locationName, "...")
 				endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location/%v/", locationName)
-				locData, err := dataToLocationData(cache, endpoint)
-				if err != nil {
+				if locData, err := dataToLocationData(cache, endpoint); err != nil {
 					return err
-				}
-				for i, area := range locData.Areas {
-					fmt.Println(i, area)
+				} else {
+					for i, area := range locData.Areas {
+						fmt.Println(i, area)
+					}
 				}
 				return nil
 			},
@@ -163,7 +164,7 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 		},
 		"cache": {
 			Name: "cache",
-			Desc: "Check Cache for debugging reasons",
+			Desc: "Check your cache. Debugging command",
 			Command: func(_ string) error {
 				cache.Print()
 				return nil
@@ -188,17 +189,23 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 }
 
 func commandHelp() error {
+	// pokeapi.cache and pokedex{} are placeholders
 	boldRed := color.New(color.Bold, color.FgRed).SprintFunc()
 	bold := color.New(color.Bold).SprintFunc()
 
 	fmt.Println(bold("Welcome to my PokeCLI!\n"))
 	fmt.Println(("------------Available Commands------------"))
-	// placeholders, pokeapi.cache and pokedex{} not used at all
-	// add order
-	for _, cmd := range getCommands(pokeapi.Cache{}, Profile{}) {
+
+	order := []string{"help", "exit", "map", "mapb", "explore", "explore-location", "catch", "pokedex", "inspect", "inventory", "shop", "cache"}
+	commands := getCommands(pokeapi.Cache{}, Profile{})
+
+	if len(order) != len(getCommands(pokeapi.Cache{}, Profile{})) {
+		return errors.New("order error: Missing or too many commands not in order list. Add them in commandHelp()")
+	}
+	for _, name := range order {
+		cmd := commands[name]
 		fmt.Printf("%s  %s\n", boldRed(cmd.Name), cmd.Desc)
 	}
-	fmt.Println()
 	return nil
 }
 
