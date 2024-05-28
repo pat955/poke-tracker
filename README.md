@@ -57,7 +57,7 @@ shop  Buy items like pokeballs, moves and more
 * Make a rarity and chance system
 * Battles, trainers
 * Ability to have more than one of one pokemon, i.e. two pikachu
-* ~~Select regions instead of starting from the start~~~ (Done!)
+* ~~Select regions instead of starting from the start~~ (Done!)
 * ~~Items~~ (Done!)
 * ~~Nicknames~~ (Done!)
 * ~~Better Cache~~ (Done!)
