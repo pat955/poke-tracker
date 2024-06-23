@@ -1,7 +1,7 @@
-# CLI Pokemon Game
+# PokeTracker
 
 ## Description
-Psuedo-Pokemon game in a command-line REPL. Uses [PokeApi](https://pokeapi.co/)
+Pokemon/pokedex game in a command-line REPL. Uses [PokeApi](https://pokeapi.co/)
 
 ### Functionality 
 * Explore areas
