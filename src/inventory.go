@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/fatih/color"
 )
@@ -42,25 +41,25 @@ func (dex Pokedex) PrintOutMyPokemon() {
 	fmt.Println("Pokemon in pokedex:")
 	for _, pokemon := range dex.CurrentPokemon {
 		if pokemon.Nickname != pokemon.Name {
-			fmt.Println("-", color.MagentaString(pokemon.Nickname), "("+color.CyanString((strings.Title(pokemon.Name)))+")")
+			fmt.Println("-", color.MagentaString(pokemon.Nickname), "("+color.CyanString((title(pokemon.Name)))+")")
 		} else {
-			fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
+			fmt.Println("-", color.MagentaString(title(pokemon.Name)))
 		}
 	}
 }
 func (dex Pokedex) PrintOutPokedex() {
 	for _, pokemon := range dex.Pokedex {
-		fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
+		fmt.Println("-", color.MagentaString(title(pokemon.Name)))
 	}
 }
 func (dex Pokedex) PrintOutCurrentPokemon() {
 	fmt.Println("-----HELD POKEMON-----")
 	for _, pokemon := range dex.CurrentPokemon {
 		if pokemon.Nickname != pokemon.Name {
-			fmt.Println("-", color.HiCyanString(pokemon.Nickname), "("+color.MagentaString(strings.Title(pokemon.Name))+")")
+			fmt.Println("-", color.HiCyanString(pokemon.Nickname), "("+color.MagentaString(title(pokemon.Name))+")")
 			continue
 		}
-		fmt.Println("-", color.MagentaString(strings.Title(pokemon.Name)))
+		fmt.Println("-", color.MagentaString(title(pokemon.Name)))
 	}
 }
 func (dex Pokedex) Add(poke *PokemonData) {
@@ -86,7 +85,11 @@ func (inven *ItemInventory) AddStarterItems() error {
 	if err != nil {
 		return err
 	}
-	json.Unmarshal(bytes, &itemdata)
+	err = json.Unmarshal(bytes, &itemdata)
+	if err != nil {
+		// replace with better error handling
+		panic(err)
+	}
 	inven.Add(itemdata.Name, Item{Amount: 5, Data: &itemdata})
 	return nil
 }

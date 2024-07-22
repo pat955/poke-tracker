@@ -20,7 +20,11 @@ import (
 func main() {
 	fmt.Println("Loading...")
 	player := newProfile()
-	player.Inventory.AddStarterItems()
+	err := player.Inventory.AddStarterItems()
+	if err != nil {
+		// replace with retry
+		panic(err)
+	}
 
 	scanner := bufio.NewScanner(os.Stdin)
 

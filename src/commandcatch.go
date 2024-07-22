@@ -35,7 +35,7 @@ func commandCatch(cache pokeapi.Cache, player Profile, currentArea, pokemonName 
 		return errors.New("catch error: This pokemon already caught, escaped or killed in this area. Come back later")
 	}
 	pokeData.Nickname = pokeData.Name
-	formattedName := color.HiCyanString(strings.Title(pokemonName))
+	formattedName := color.HiCyanString(title(pokemonName))
 
 	fmt.Println("Attempting to catch", formattedName, "...")
 	catchLoop(pokeData, player, currentArea, formattedName)
@@ -77,7 +77,6 @@ func catchLoop(pokeData *PokemonData, player Profile, currentArea, name string) 
 }
 func capture() bool {
 	boldPrint := color.New(color.Bold).PrintlnFunc()
-	rand.Seed(time.Now().UnixMilli())
 	boldPrint(color.HiBlackString("*Poke ball thrown!*"))
 	time.Sleep(300 * time.Millisecond)
 	// 95% chance of success
@@ -101,5 +100,5 @@ func capture() bool {
 	return false
 }
 func chanceCheck(precentage float64) bool {
-	return precentage > rand.Float64()
+	return precentage > rand.Float64() // #nosec G404
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/pat955/pokedex/internal/pokeapi"
 )
 
-func buyItems(cache pokeapi.Cache, inventory ItemInventory) error {
+func buyItems(_ pokeapi.Cache, inventory ItemInventory) error {
 	options := map[string]string{"1": "poke-ball", "2": "ultra-ball", "3": "somethingelse"}
 	fmt.Println("You can buy:\n[1]Poke Balls\n[2]Ultra Balls\n[3]somethingelse")
 	scanner := bufio.NewScanner(os.Stdin)

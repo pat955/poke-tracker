@@ -188,7 +188,7 @@ func getCommands(cache pokeapi.Cache, player Profile) map[string]cliCommand {
 	}
 }
 
-func commandHelp() error {
+func commandHelp() {
 	// pokeapi.cache and pokedex{} are placeholders
 	boldRed := color.New(color.Bold, color.FgRed).SprintFunc()
 	bold := color.New(color.Bold).SprintFunc()
@@ -200,13 +200,13 @@ func commandHelp() error {
 	commands := getCommands(pokeapi.Cache{}, Profile{})
 
 	if len(order) != len(getCommands(pokeapi.Cache{}, Profile{})) {
-		return errors.New("order error: Missing or too many commands not in order list. Add them in commandHelp()")
+		fmt.Println("order error: Missing or too many commands not in order list. Add them in commandHelp()")
+		return
 	}
 	for _, name := range order {
 		cmd := commands[name]
 		fmt.Printf("%s  %s\n", boldRed(cmd.Name), cmd.Desc)
 	}
-	return nil
 }
 
 func call(endpoint string) ([]byte, error) {
@@ -228,7 +228,11 @@ func checkAndCall(cache pokeapi.Cache, endpoint string, dataStruct pokeapi.DataT
 	if err != nil {
 		return nil, err
 	}
-	json.Unmarshal(bytes, &dataStruct)
+	err = json.Unmarshal(bytes, &dataStruct)
+	if err != nil {
+		// replace
+		panic(err)
+	}
 	cache.Add(endpoint, dataStruct)
 	return dataStruct, nil
 }
