@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/fatih/color v1.17.0
 	github.com/go-zoox/fetch v1.8.2
-	golang.org/x/text v0.16.0
 )
 
 require (
