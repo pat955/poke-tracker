@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"math/rand/v2"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -100,6 +100,5 @@ func capture() bool {
 	return false
 }
 func chanceCheck(precentage float64) bool {
-	// why does this not work
-	return precentage > rand.Float64()
+	return precentage > rand.Float64() // nosec G404
 }
