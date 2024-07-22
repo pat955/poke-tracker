@@ -1,4 +1,6 @@
 # PokeTracker
+![code coverage badge](https://github.com/pat955/pokedex/actions/workflows/ci.yml/badge.svg)
+
 
 ## Description
 Pokemon/pokedex game in a command-line REPL. Uses [PokeApi](https://pokeapi.co/)
