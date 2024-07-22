@@ -19,10 +19,7 @@ jobs:
           go-version: '1.22'
 
       - name: Run unit tests in src
-        run: go test ./src/tests/... -cover
-
-      - name: Run unit tests in internal
-        run: go test ./src/internal/... -cover
+        run: go test ./ -cover
         
       - name: Install gosec
         run: go install github.com/securego/gosec/v2/cmd/gosec@latest
