@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/fatih/color"
 )
@@ -415,16 +414,16 @@ func (p *PokemonData) GetURL() string {
 }
 func (p *PokemonData) PrintBaseStats() {
 	for _, stat := range p.Stats {
-		fmt.Println(strings.Title(stat.Stat.Name)+":", stat.BaseStat)
+		fmt.Println(title(stat.Stat.Name)+":", stat.BaseStat)
 	}
 }
 func (p *PokemonData) PrintMoves() {
 	for _, move := range p.Moves {
-		fmt.Println(strings.Title(move.Move.Name)+":", move.Move.Name)
+		fmt.Println(title(move.Move.Name)+":", move.Move.Name)
 	}
 }
 func (p *PokemonData) PrintTypes() {
 	for _, typ := range p.Types {
-		fmt.Println(strings.Title(typ.Type.Name))
+		fmt.Println(title(typ.Type.Name))
 	}
 }

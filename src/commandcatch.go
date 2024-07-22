@@ -35,7 +35,7 @@ func commandCatch(cache pokeapi.Cache, player Profile, currentArea, pokemonName 
 		return errors.New("catch error: This pokemon already caught, escaped or killed in this area. Come back later")
 	}
 	pokeData.Nickname = pokeData.Name
-	formattedName := color.HiCyanString(strings.Title(pokemonName))
+	formattedName := color.HiCyanString(title(pokemonName))
 
 	fmt.Println("Attempting to catch", formattedName, "...")
 	catchLoop(pokeData, player, currentArea, formattedName)
