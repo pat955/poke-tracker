@@ -100,5 +100,5 @@ func capture() bool {
 	return false
 }
 func chanceCheck(precentage float64) bool {
-	return precentage > rand.Float64() // nosec G404
+	return precentage > rand.Float64() // #nosec G404
 }
