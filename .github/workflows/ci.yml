@@ -19,7 +19,7 @@ jobs:
           go-version: '1.18'
 
       - name: Run unit tests in src
-        run: go test ./ -cover
+        run: go test ./... -cover
         
       - name: Install gosec
         run: go install github.com/securego/gosec/v2/cmd/gosec@latest
