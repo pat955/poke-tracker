@@ -9,7 +9,7 @@ Psuedo-Pokemon game in a command-line REPL. It uses [PokeApi](https://pokeapi.co
 * Catch pokemon and name them
 * Inspect your pokemon
 * Buy items and check inventory
-* 
+
 
 ### Plans
 * Documentation
