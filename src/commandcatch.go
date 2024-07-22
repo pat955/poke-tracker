@@ -100,5 +100,6 @@ func capture() bool {
 	return false
 }
 func chanceCheck(precentage float64) bool {
+	// why does this not work
 	return precentage > rand.Float64()
 }

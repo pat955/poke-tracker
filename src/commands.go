@@ -207,7 +207,6 @@ func commandHelp() {
 		cmd := commands[name]
 		fmt.Printf("%s  %s\n", boldRed(cmd.Name), cmd.Desc)
 	}
-	return
 }
 
 func call(endpoint string) ([]byte, error) {
@@ -229,7 +228,11 @@ func checkAndCall(cache pokeapi.Cache, endpoint string, dataStruct pokeapi.DataT
 	if err != nil {
 		return nil, err
 	}
-	json.Unmarshal(bytes, &dataStruct)
+	err = json.Unmarshal(bytes, &dataStruct)
+	if err != nil {
+		// replace
+		panic(err)
+	}
 	cache.Add(endpoint, dataStruct)
 	return dataStruct, nil
 }
