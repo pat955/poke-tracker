@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"os"
 	"strings"
 	"time"
@@ -77,7 +77,6 @@ func catchLoop(pokeData *PokemonData, player Profile, currentArea, name string) 
 }
 func capture() bool {
 	boldPrint := color.New(color.Bold).PrintlnFunc()
-	rand.Seed(time.Now().UnixMilli())
 	boldPrint(color.HiBlackString("*Poke ball thrown!*"))
 	time.Sleep(300 * time.Millisecond)
 	// 95% chance of success

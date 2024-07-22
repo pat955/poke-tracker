@@ -86,7 +86,11 @@ func (inven *ItemInventory) AddStarterItems() error {
 	if err != nil {
 		return err
 	}
-	json.Unmarshal(bytes, &itemdata)
+	err = json.Unmarshal(bytes, &itemdata)
+	if err != nil {
+		// replace with better error handling
+		panic(err)
+	}
 	inven.Add(itemdata.Name, Item{Amount: 5, Data: &itemdata})
 	return nil
 }
