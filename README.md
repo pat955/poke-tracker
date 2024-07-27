@@ -51,6 +51,7 @@ pokedex  See all the pokemon you've caught so far
 cache  Check Cache for debugging reasons
 inventory  Check inventory and use items
 shop  Buy items like pokeballs, moves and more
+PokeCLI >>> 
 ```
 
 ## Plans
