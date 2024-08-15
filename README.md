@@ -1,26 +1,27 @@
 # PokeTracker
 ![code coverage badge](https://github.com/pat955/pokedex/actions/workflows/ci.yml/badge.svg)
 
-
 ## Description
-Pokemon/pokedex game in a command-line REPL. Uses [PokeApi](https://pokeapi.co/)
+Pokemon and pokedex-tracking game in a command-line REPL. Uses [PokeApi](https://pokeapi.co/) Catch critters and explore the world of pokemon in a text based format.
+### Why?
+Honestly it seemed like a fun project and it really was! I love programming in go and combining that with a fun concept was a blast!
 
-### Functionality 
-* Explore areas
+
+## Functionality 
+* Explore sub-areas or entire locations
 * Check pokemon in that region
 * Catch pokemon and name them
 * Inspect your pokemon
 * Buy items and check inventory
 
-
 ## How to play
 First clone the project.
-```
+```bash
 git clone https://github.com/pat955/pokedex/
 ```
 
 After that simply run to start:
-```
+```bash
 ./main.sh
 ```
 
@@ -58,10 +59,13 @@ PokeCLI >>>
 * Better documentation
 * History when pressing up
 * Make a rarity and chance system
-* Battles, trainers
+* Battles, trainers, quests
 * Ability to have more than one of one pokemon, i.e. two pikachu
-* ~~Select regions instead of starting from the start~~ (Done!)
-* ~~Items~~ (Done!)
-* ~~Nicknames~~ (Done!)
-* ~~Better Cache~~ (Done!)
+* CI (maybe even cd) pipeline
+  
+### Completed
+* Select regions instead of starting from the start
+* Items
+* Nicknames
+* Better Cache
 
