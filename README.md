@@ -77,6 +77,7 @@ go test ./...
 If you'd like to contribute, please fork the repository and open a pull request to the `main` branch.
 
 # Roadmap
+- [ ] Rename
 - [ ] Better documentation
 - [ ] History when pressing up
 - [ ] Make a rarity and chance system
